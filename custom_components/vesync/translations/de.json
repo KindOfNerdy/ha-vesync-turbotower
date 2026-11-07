@@ -225,8 +225,8 @@
             "drying_mode_power_off": {
                 "name": "Im ausgeschalteten Zustand Trocknungsmodus aktivieren"
             },
-            "confirm_on_device": {
-                "name": "Start am Gerät bestätigen"
+            "direct_start": {
+                "name": "Direktstart"
             }
         },
         "event": {
@@ -324,10 +324,6 @@
                     "name": "Zeit",
                     "description": "Garzeit in Minuten. Leer lassen für den Gerätestandard des Programms."
                 },
-                "confirm_on_device": {
-                    "name": "Start am Gerät bestätigen",
-                    "description": "Programm nur senden und am Gerät mit der Start-Taste starten. Leer lassen für die Einstellung des Schalters."
-                },
                 "mode": {
                     "name": "Modus für beide Zonen",
                     "description": "Unabhängig: jede Zone mit eigener Zeit. Sync: beide werden gleichzeitig fertig. Match: Zone 2 übernimmt die Werte von Zone 1."
@@ -343,6 +339,10 @@
                 "duration_2": {
                     "name": "Zeit Zone 2",
                     "description": "Garzeit in Minuten. Leer lassen für den Gerätestandard des Programms."
+                },
+                "direct_start": {
+                    "name": "Direktstart",
+                    "description": "Sofort losgaren. Aus: Das Programm wird nur gesendet und am Gerät mit der Start-Taste gestartet. Leer lassen für die Einstellung des Schalters."
                 }
             },
             "sections": {

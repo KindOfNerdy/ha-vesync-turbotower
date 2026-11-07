@@ -231,8 +231,8 @@
       "drying_mode_power_off": {
         "name": "Enable drying mode while power is off"
       },
-      "confirm_on_device": {
-        "name": "Confirm start on device"
+      "direct_start": {
+        "name": "Direct start"
       }
     },
     "event": {
@@ -330,10 +330,6 @@
           "name": "Time",
           "description": "Cooking time in minutes. Leave empty to use the program's preset."
         },
-        "confirm_on_device": {
-          "name": "Confirm start on device",
-          "description": "Only send the program and start it with the button on the fryer. Leave empty to use the switch setting."
-        },
         "mode": {
           "name": "Mode for both zones",
           "description": "Independent: each zone on its own time. Sync: both finish together. Match: zone 2 uses the values of zone 1."
@@ -349,6 +345,10 @@
         "duration_2": {
           "name": "Time zone 2",
           "description": "Cooking time in minutes. Leave empty to use the program's preset."
+        },
+        "direct_start": {
+          "name": "Direct start",
+          "description": "Start cooking right away. Off: the program is only sent and you start it with the button on the fryer. Leave empty to use the switch setting."
         }
       },
       "sections": {

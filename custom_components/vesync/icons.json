@@ -74,8 +74,8 @@
       "drying_mode_power_off": {
         "default": "mdi:weather-windy"
       },
-      "confirm_on_device": {
-        "default": "mdi:gesture-tap-button"
+      "direct_start": {
+        "default": "mdi:play-circle-outline"
       }
     },
     "sensor": {

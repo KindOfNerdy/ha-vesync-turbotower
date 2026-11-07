@@ -54,7 +54,7 @@ START_SCHEMA = vol.Schema(
         vol.Required("program"): PROGRAM,
         vol.Optional("temperature"): TEMP,
         vol.Optional("duration"): MINUTES,
-        vol.Optional("confirm_on_device"): cv.boolean,
+        vol.Optional("direct_start"): cv.boolean,
         vol.Optional("mode", default="independent"): vol.In(["independent", "sync", "match"]),
         vol.Optional("program_2"): PROGRAM,
         vol.Optional("temperature_2"): TEMP,
@@ -168,7 +168,7 @@ async def _start_cook(call: ServiceCall) -> None:
     data = call.data
     zone = data["zone"]
     first = _values(coordinator, dev, data["program"], data.get("temperature"), data.get("duration"))
-    ready = data.get("confirm_on_device", coordinator.fryer_form(dev.cid).confirm_on_device)
+    ready = not data.get("direct_start", coordinator.fryer_form(dev.cid).direct_start)
 
     if zone in ("1", "2"):
         if _status(dev, int(zone)) in BUSY_STATES:

@@ -259,7 +259,7 @@ class FryerForm:
 
     zones: dict[int, ZoneForm]
     start_mode: str = "separate"
-    confirm_on_device: bool = True
+    direct_start: bool = False  # False: program waits for the start button (readyStart)
     edited: bool = False  # True once the user changed a zone value
 
 

@@ -301,44 +301,44 @@ def number_entities(devices, coordinator) -> list[NumberEntity]:
 # --- switch ---------------------------------------------------------------------
 
 
-class ConfirmOnDeviceSwitch(FryerEntity, SwitchEntity, RestoreEntity):
-    """Only send the program; start it with the button on the fryer."""
+class DirectStartSwitch(FryerEntity, SwitchEntity, RestoreEntity):
+    """Start cooking right away instead of waiting for the start button."""
 
     _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(self, device, coordinator) -> None:
         """Initialize."""
-        super().__init__(device, coordinator, "confirm_on_device")
+        super().__init__(device, coordinator, "direct_start")
 
     @override
     async def async_added_to_hass(self) -> None:
-        """Restore the last state (default on)."""
+        """Restore the last state (default off)."""
         await super().async_added_to_hass()
         if (last := await self.async_get_last_state()) is not None:
-            self.form.confirm_on_device = last.state != "off"
+            self.form.direct_start = last.state == "on"
 
     @property
     @override
     def is_on(self) -> bool:
-        """Return True if starts must be confirmed on the device."""
-        return self.form.confirm_on_device
+        """Return True if starts begin right away."""
+        return self.form.direct_start
 
     @override
     async def async_turn_on(self, **kwargs) -> None:
         """Turn on."""
-        self.form.confirm_on_device = True
+        self.form.direct_start = True
         self.async_write_ha_state()
 
     @override
     async def async_turn_off(self, **kwargs) -> None:
         """Turn off."""
-        self.form.confirm_on_device = False
+        self.form.direct_start = False
         self.async_write_ha_state()
 
 
 def switch_entities(devices, coordinator) -> list[SwitchEntity]:
     """Return fryer switch entities."""
-    return [ConfirmOnDeviceSwitch(dev, coordinator) for dev in _fryers(devices)]
+    return [DirectStartSwitch(dev, coordinator) for dev in _fryers(devices)]
 
 
 # --- button ---------------------------------------------------------------------
@@ -365,7 +365,7 @@ class FryerButton(FryerEntity, ButtonEntity):
     @override
     async def async_press(self) -> None:
         """Handle the button press."""
-        ready = self.form.confirm_on_device
+        ready = not self.form.direct_start
         if self._action == "start":
             if self._busy():
                 raise _error("zone_busy", zone=str(self._zone))

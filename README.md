@@ -14,7 +14,7 @@ Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung f�
 - Schnellere Abfrage, solange eine Zone aktiv ist
 - Programm (Auswahlliste), Temperatur und Zeit je Zone; Werte kommen aus den Standards des Geräts
 - Startmodus für beide Zonen: Unabhängig, Sync (gemeinsames Ende), Match
-- „Start am Gerät bestätigen“ (Standard an): Programm wird nur gesendet, gestartet wird am Gerät
+- „Direktstart“ (Standard aus): aus = Programm wird nur gesendet, gestartet wird am Gerät
 - Buttons: Zone starten, beide starten, Zone stoppen, alle stoppen, Pause/Fortsetzen je Zone und für alle
 - Ereignisse je Zone für Automationen: bereit, gestartet, pausiert, fortgesetzt, Korb gezogen, fertig, abgebrochen
 - Firmware-Anzeige für den Airfryer

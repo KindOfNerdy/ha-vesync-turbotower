@@ -38,7 +38,7 @@ start_cook:
           step: 1
           unit_of_measurement: min
           mode: box
-    confirm_on_device:
+    direct_start:
       selector:
         boolean:
     zone_2:
