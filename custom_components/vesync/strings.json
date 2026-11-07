@@ -281,12 +281,204 @@
     },
     "command_failed": {
       "message": "The air fryer refused the command {command} (code {code})."
+    },
+    "no_fryer": {
+      "message": "No dual-zone air fryer found."
+    },
+    "choose_fryer": {
+      "message": "There are several air fryers. Please choose one."
+    },
+    "not_a_fryer": {
+      "message": "The chosen device is not a dual-zone air fryer."
+    },
+    "zone_2_missing": {
+      "message": "Please choose a program for zone 2 (or use Match)."
+    },
+    "nothing_to_do": {
+      "message": "No zone is in a state for this action."
+    },
+    "not_in_sync": {
+      "message": "The air fryer is not in sync mode."
     }
   },
   "services": {
     "update_devices": {
       "description": "Adds new VeSync devices to Home Assistant.",
       "name": "Update devices"
+    },
+    "start_cook": {
+      "name": "Start cooking",
+      "description": "Starts one or both zones of a dual-zone air fryer. Temperature and time default to the program's preset stored in the fryer.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        },
+        "zone": {
+          "name": "Zone",
+          "description": "1 (top), 2 (bottom) or both zones."
+        },
+        "program": {
+          "name": "Program",
+          "description": "Cooking program (for both zones: zone 1)."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "Leave empty to use the program's preset."
+        },
+        "duration": {
+          "name": "Time",
+          "description": "Cooking time in minutes. Leave empty to use the program's preset."
+        },
+        "confirm_on_device": {
+          "name": "Confirm start on device",
+          "description": "Only send the program and start it with the button on the fryer. Leave empty to use the switch setting."
+        },
+        "mode": {
+          "name": "Mode for both zones",
+          "description": "Independent: each zone on its own time. Sync: both finish together. Match: zone 2 uses the values of zone 1."
+        },
+        "program_2": {
+          "name": "Program zone 2",
+          "description": "Only for independent or sync."
+        },
+        "temperature_2": {
+          "name": "Temperature zone 2",
+          "description": "Leave empty to use the program's preset."
+        },
+        "duration_2": {
+          "name": "Time zone 2",
+          "description": "Cooking time in minutes. Leave empty to use the program's preset."
+        }
+      },
+      "sections": {
+        "zone_2": {
+          "name": "Both zones",
+          "description": "Only needed when starting both zones."
+        }
+      }
+    },
+    "stop": {
+      "name": "Stop cooking",
+      "description": "Ends cooking in one or all zones. When no zone is left, the fryer switches off.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        },
+        "zone": {
+          "name": "Zone",
+          "description": "Which zone: 1 (top), 2 (bottom) or all."
+        }
+      }
+    },
+    "pause": {
+      "name": "Pause",
+      "description": "Pauses cooking zones.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        },
+        "zone": {
+          "name": "Zone",
+          "description": "Which zone: 1 (top), 2 (bottom) or all."
+        }
+      }
+    },
+    "resume": {
+      "name": "Resume",
+      "description": "Resumes paused zones.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        },
+        "zone": {
+          "name": "Zone",
+          "description": "Which zone: 1 (top), 2 (bottom) or all."
+        }
+      }
+    },
+    "quit_sync": {
+      "name": "Leave sync",
+      "description": "Ends sync mode; a waiting zone starts right away.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        }
+      }
+    },
+    "set_preset": {
+      "name": "Set program preset",
+      "description": "Changes the temperature and time the fryer suggests for a program, also on its control panel.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        },
+        "program": {
+          "name": "Program",
+          "description": "Program to change."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "New preset temperature."
+        },
+        "duration": {
+          "name": "Time",
+          "description": "New preset time in minutes."
+        }
+      }
+    },
+    "reset_preset": {
+      "name": "Reset program preset",
+      "description": "Sets a program's preset back to the factory value.",
+      "fields": {
+        "device_id": {
+          "name": "Air fryer",
+          "description": "Leave empty if you have only one Turbo Tower."
+        },
+        "program": {
+          "name": "Program",
+          "description": "Program to reset."
+        }
+      }
+    }
+  },
+  "selector": {
+    "program": {
+      "options": {
+        "airfry": "Air Fry",
+        "bake": "Bake",
+        "roast": "Roast",
+        "grill": "Grill",
+        "reheat": "Reheat",
+        "dry": "Dehydrate",
+        "proof": "Proof"
+      }
+    },
+    "start_zone": {
+      "options": {
+        "1": "Zone 1 (top)",
+        "2": "Zone 2 (bottom)",
+        "both": "Both zones"
+      }
+    },
+    "start_mode": {
+      "options": {
+        "independent": "Independent",
+        "sync": "Sync (finish together)",
+        "match": "Match (zone 1 values)"
+      }
+    },
+    "action_zone": {
+      "options": {
+        "1": "Zone 1 (top)",
+        "2": "Zone 2 (bottom)",
+        "all": "All zones"
+      }
     }
   }
 }

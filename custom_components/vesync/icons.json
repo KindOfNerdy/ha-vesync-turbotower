@@ -123,6 +123,27 @@
   "services": {
     "update_devices": {
       "service": "mdi:update"
+    },
+    "start_cook": {
+      "service": "mdi:play"
+    },
+    "stop": {
+      "service": "mdi:stop"
+    },
+    "pause": {
+      "service": "mdi:pause"
+    },
+    "resume": {
+      "service": "mdi:play-pause"
+    },
+    "quit_sync": {
+      "service": "mdi:sync-off"
+    },
+    "set_preset": {
+      "service": "mdi:content-save-edit"
+    },
+    "reset_preset": {
+      "service": "mdi:restore"
     }
   }
 }

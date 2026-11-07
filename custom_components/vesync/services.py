@@ -7,6 +7,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import DOMAIN, SERVICE_UPDATE_DEVS, VS_DEVICES, VS_DISCOVERY
 from .coordinator import VesyncConfigEntry
+from .fryer_services import async_setup_fryer_services
 
 
 @callback
@@ -16,6 +17,8 @@ def async_setup_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, SERVICE_UPDATE_DEVS, async_new_device_discovery
     )
+    # Turbo Tower fork: dual-zone air fryer services
+    async_setup_fryer_services(hass)
 
 
 async def async_new_device_discovery(call: ServiceCall) -> None:

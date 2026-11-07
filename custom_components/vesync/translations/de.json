@@ -275,12 +275,204 @@
         },
         "command_failed": {
             "message": "Der Airfryer hat den Befehl {command} abgelehnt (Code {code})."
+        },
+        "no_fryer": {
+            "message": "Kein Zwei-Zonen-Airfryer gefunden."
+        },
+        "choose_fryer": {
+            "message": "Es gibt mehrere Airfryer. Bitte einen auswählen."
+        },
+        "not_a_fryer": {
+            "message": "Das gewählte Gerät ist kein Zwei-Zonen-Airfryer."
+        },
+        "zone_2_missing": {
+            "message": "Bitte ein Programm für Zone 2 wählen (oder Match nutzen)."
+        },
+        "nothing_to_do": {
+            "message": "Keine Zone ist in einem passenden Zustand für diese Aktion."
+        },
+        "not_in_sync": {
+            "message": "Der Airfryer ist nicht im Sync-Modus."
         }
     },
     "services": {
         "update_devices": {
             "description": "Fügt neue VeSync-Geräte zu Home Assistant hinzu.",
             "name": "Geräte aktualisieren"
+        },
+        "start_cook": {
+            "name": "Garen starten",
+            "description": "Startet eine oder beide Zonen eines Zwei-Zonen-Airfryers. Temperatur und Zeit kommen, wenn leer, aus dem Gerätestandard des Programms.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                },
+                "zone": {
+                    "name": "Zone",
+                    "description": "1 (oben), 2 (unten) oder beide Zonen."
+                },
+                "program": {
+                    "name": "Programm",
+                    "description": "Garprogramm (bei beiden Zonen: für Zone 1)."
+                },
+                "temperature": {
+                    "name": "Temperatur",
+                    "description": "Leer lassen für den Gerätestandard des Programms."
+                },
+                "duration": {
+                    "name": "Zeit",
+                    "description": "Garzeit in Minuten. Leer lassen für den Gerätestandard des Programms."
+                },
+                "confirm_on_device": {
+                    "name": "Start am Gerät bestätigen",
+                    "description": "Programm nur senden und am Gerät mit der Start-Taste starten. Leer lassen für die Einstellung des Schalters."
+                },
+                "mode": {
+                    "name": "Modus für beide Zonen",
+                    "description": "Unabhängig: jede Zone mit eigener Zeit. Sync: beide werden gleichzeitig fertig. Match: Zone 2 übernimmt die Werte von Zone 1."
+                },
+                "program_2": {
+                    "name": "Programm Zone 2",
+                    "description": "Nur bei Unabhängig oder Sync."
+                },
+                "temperature_2": {
+                    "name": "Temperatur Zone 2",
+                    "description": "Leer lassen für den Gerätestandard des Programms."
+                },
+                "duration_2": {
+                    "name": "Zeit Zone 2",
+                    "description": "Garzeit in Minuten. Leer lassen für den Gerätestandard des Programms."
+                }
+            },
+            "sections": {
+                "zone_2": {
+                    "name": "Beide Zonen",
+                    "description": "Nur nötig, wenn beide Zonen starten."
+                }
+            }
+        },
+        "stop": {
+            "name": "Garen beenden",
+            "description": "Beendet das Garen in einer oder allen Zonen. Ist keine Zone mehr aktiv, schaltet sich das Gerät aus.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                },
+                "zone": {
+                    "name": "Zone",
+                    "description": "Welche Zone: 1 (oben), 2 (unten) oder alle."
+                }
+            }
+        },
+        "pause": {
+            "name": "Pausieren",
+            "description": "Pausiert garende Zonen.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                },
+                "zone": {
+                    "name": "Zone",
+                    "description": "Welche Zone: 1 (oben), 2 (unten) oder alle."
+                }
+            }
+        },
+        "resume": {
+            "name": "Fortsetzen",
+            "description": "Setzt pausierte Zonen fort.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                },
+                "zone": {
+                    "name": "Zone",
+                    "description": "Welche Zone: 1 (oben), 2 (unten) oder alle."
+                }
+            }
+        },
+        "quit_sync": {
+            "name": "Sync beenden",
+            "description": "Beendet den Sync-Modus; eine wartende Zone startet sofort.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                }
+            }
+        },
+        "set_preset": {
+            "name": "Programm-Standard ändern",
+            "description": "Ändert Temperatur und Zeit, die das Gerät für ein Programm vorschlägt – auch am Bedienfeld.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                },
+                "program": {
+                    "name": "Programm",
+                    "description": "Programm, dessen Standard geändert wird."
+                },
+                "temperature": {
+                    "name": "Temperatur",
+                    "description": "Neue Standard-Temperatur."
+                },
+                "duration": {
+                    "name": "Zeit",
+                    "description": "Neue Standard-Zeit in Minuten."
+                }
+            }
+        },
+        "reset_preset": {
+            "name": "Programm-Standard zurücksetzen",
+            "description": "Setzt den Standard eines Programms auf den Werkswert zurück.",
+            "fields": {
+                "device_id": {
+                    "name": "Airfryer",
+                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                },
+                "program": {
+                    "name": "Programm",
+                    "description": "Programm, das zurückgesetzt wird."
+                }
+            }
+        }
+    },
+    "selector": {
+        "program": {
+            "options": {
+                "airfry": "Air Fry",
+                "bake": "Backen",
+                "roast": "Braten",
+                "grill": "Grillen",
+                "reheat": "Aufwärmen",
+                "dry": "Dörren",
+                "proof": "Gären"
+            }
+        },
+        "start_zone": {
+            "options": {
+                "1": "Zone 1 (oben)",
+                "2": "Zone 2 (unten)",
+                "both": "Beide Zonen"
+            }
+        },
+        "start_mode": {
+            "options": {
+                "independent": "Unabhängig",
+                "sync": "Sync (gemeinsames Ende)",
+                "match": "Match (Werte von Zone 1)"
+            }
+        },
+        "action_zone": {
+            "options": {
+                "1": "Zone 1 (oben)",
+                "2": "Zone 2 (unten)",
+                "all": "Alle Zonen"
+            }
         }
     }
 }

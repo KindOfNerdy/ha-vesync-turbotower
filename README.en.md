@@ -19,7 +19,22 @@ Fork of the official Home Assistant **VeSync** integration that adds support for
 - Events per zone for automations: ready, started, paused, resumed, basket out, finished, stopped
 - Firmware shown for the air fryer
 
-In progress: services for recipes and automations.
+- Actions (services) for recipes and automations:
+  - `vesync.start_cook` – one zone or both (independent, sync, match); empty values use the fryer's preset
+  - `vesync.stop`, `vesync.pause`, `vesync.resume` – zone 1, 2 or all
+  - `vesync.quit_sync` – leave sync
+  - `vesync.set_preset`, `vesync.reset_preset` – change/reset program presets in the fryer
+
+Example recipe script:
+
+```yaml
+action: vesync.start_cook
+data:
+  zone: "1"
+  program: airfry
+  temperature: 200
+  duration: 18
+```
 
 ## Fixes on top of pyvesync 3.5.0
 

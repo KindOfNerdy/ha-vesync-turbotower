@@ -1,1 +1,141 @@
 update_devices:
+
+# --- Turbo Tower fork: dual-zone air fryer ---------------------------------------
+
+start_cook:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: vesync
+    zone:
+      required: true
+      default: "1"
+      selector:
+        select:
+          translation_key: start_zone
+          options: ["1", "2", "both"]
+    program:
+      required: true
+      default: airfry
+      selector:
+        select:
+          translation_key: program
+          options: [airfry, bake, roast, grill, reheat, dry, proof]
+    temperature:
+      selector:
+        number:
+          min: 30
+          max: 230
+          step: 1
+          unit_of_measurement: "°C"
+          mode: box
+    duration:
+      selector:
+        number:
+          min: 1
+          max: 1440
+          step: 1
+          unit_of_measurement: min
+          mode: box
+    confirm_on_device:
+      selector:
+        boolean:
+    zone_2:
+      collapsed: true
+      fields:
+        mode:
+          default: independent
+          selector:
+            select:
+              translation_key: start_mode
+              options: [independent, sync, match]
+        program_2:
+          selector:
+            select:
+              translation_key: program
+              options: [airfry, bake, roast, grill, reheat, dry, proof]
+        temperature_2:
+          selector:
+            number:
+              min: 30
+              max: 230
+              step: 1
+              unit_of_measurement: "°C"
+              mode: box
+        duration_2:
+          selector:
+            number:
+              min: 1
+              max: 1440
+              step: 1
+              unit_of_measurement: min
+              mode: box
+
+stop: &zone_action
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: vesync
+    zone:
+      default: all
+      selector:
+        select:
+          translation_key: action_zone
+          options: ["1", "2", all]
+
+pause: *zone_action
+
+resume: *zone_action
+
+quit_sync:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: vesync
+
+set_preset:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: vesync
+    program:
+      required: true
+      selector:
+        select:
+          translation_key: program
+          options: [airfry, bake, roast, grill, reheat, dry, proof]
+    temperature:
+      required: true
+      selector:
+        number:
+          min: 30
+          max: 230
+          step: 1
+          unit_of_measurement: "°C"
+          mode: box
+    duration:
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 1440
+          step: 1
+          unit_of_measurement: min
+          mode: box
+
+reset_preset:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: vesync
+    program:
+      required: true
+      selector:
+        select:
+          translation_key: program
+          options: [airfry, bake, roast, grill, reheat, dry, proof]

@@ -19,7 +19,22 @@ Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung f�
 - Ereignisse je Zone für Automationen: bereit, gestartet, pausiert, fortgesetzt, Korb gezogen, fertig, abgebrochen
 - Firmware-Anzeige für den Airfryer
 
-In Arbeit: Services für Rezepte und Automationen.
+- Aktionen (Services) für Rezepte und Automationen:
+  - `vesync.start_cook` – eine Zone oder beide (unabhängig, Sync, Match); leere Werte = Gerätestandard
+  - `vesync.stop`, `vesync.pause`, `vesync.resume` – Zone 1, 2 oder alle
+  - `vesync.quit_sync` – Sync beenden
+  - `vesync.set_preset`, `vesync.reset_preset` – Programm-Standards im Gerät ändern/zurücksetzen
+
+Beispiel Rezept-Script:
+
+```yaml
+action: vesync.start_cook
+data:
+  zone: "1"
+  program: airfry
+  temperature: 200
+  duration: 18
+```
 
 ## Korrekturen gegenüber pyvesync 3.5.0
 
