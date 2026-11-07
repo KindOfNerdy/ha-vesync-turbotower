@@ -98,12 +98,35 @@ def is_dual_fryer(device: VeSyncBaseDevice) -> bool:
     )
 
 
+def raw_zone_item(device: VeSyncFryer, zone: AirFryerChamber) -> dict[str, Any]:
+    """Return the zone's item from the last status poll (pyvesync drops standby values)."""
+    data = getattr(device.last_response, "response_data", None) or {}
+    inner = (data.get("result") or {}).get("result") or {}
+    for item in inner.get("statusList") or []:
+        if item.get("chamber") == int(zone):
+            return item
+    return {}
+
+
+def _panel_selected(device: VeSyncFryer, zone: AirFryerChamber) -> bool:
+    """Fryer is on and a program is chosen on the panel but not started.
+
+    The cloud then reports ``standby`` with cookTemp/cookSetTime set (device test
+    "observe"); a switched-off zone reports zeros.
+    """
+    item = raw_zone_item(device, zone)
+    return item.get("cookStatus") == "standby" and bool(item.get("cookSetTime"))
+
+
 def zone_status(device: VeSyncFryer, zone: AirFryerChamber) -> str | None:
     """Return the zone status option."""
     state = device.get_chamber_state(zone)
     if state is None or state.cook_status is None:
         return None
-    return _ZONE_STATUS_MAP.get(state.cook_status)
+    status = _ZONE_STATUS_MAP.get(state.cook_status)
+    if status == "off" and _panel_selected(device, zone):
+        return "ready"
+    return status
 
 
 def zone_end_time(device: VeSyncFryer, zone: AirFryerChamber) -> datetime | None:
@@ -124,6 +147,9 @@ def zone_values(device: VeSyncFryer, zone: AirFryerChamber) -> tuple[str | None,
     state = device.get_chamber_state(zone)
     if state is None or zone_status(device, zone) in (None, "off"):
         return None, None, None
+    if _panel_selected(device, zone):
+        item = raw_zone_item(device, zone)
+        return item.get("mode"), item.get("cookTemp"), round(item["cookSetTime"] / 60)
     minutes = round(state.cook_set_time / 60) if state.cook_set_time else None
     return state.cook_mode, state.cook_set_temp, minutes
 
@@ -223,6 +249,42 @@ async def pause_zone(device: VeSyncFryer, zone: int) -> None:
 async def resume_zone(device: VeSyncFryer, zone: int) -> None:
     """Resume one zone."""
     await _call(device, "resumeWork", {"chamber": zone})
+
+
+BOTH_ZONES = 4  # chamber value for both zones (endCook/pauseWork/resumeWork)
+
+
+async def _all_zones(device: VeSyncFryer, method: str, zones: list[int]) -> None:
+    """Send one command for both zones; fall back to one per zone.
+
+    One request with chamber 4 works while both zones run (device tests
+    "endboth", "pauseall"); after a dissolved Sync the cloud refuses it
+    (11920000), so then each zone is sent on its own.
+    """
+    if len(zones) == 2:
+        try:
+            await _call(device, method, {"chamber": BOTH_ZONES})
+        except FryerCommandError:
+            pass
+        else:
+            return
+    for zone in zones:
+        await _call(device, method, {"chamber": zone})
+
+
+async def end_zones(device: VeSyncFryer, zones: list[int]) -> None:
+    """End the given zones."""
+    await _all_zones(device, "endCook", zones)
+
+
+async def pause_zones(device: VeSyncFryer, zones: list[int]) -> None:
+    """Pause the given zones."""
+    await _all_zones(device, "pauseWork", zones)
+
+
+async def resume_zones(device: VeSyncFryer, zones: list[int]) -> None:
+    """Resume the given zones."""
+    await _all_zones(device, "resumeWork", zones)
 
 
 async def quit_sync(device: VeSyncFryer) -> None:

@@ -38,10 +38,13 @@ from .fryer import (
     clamp_temperature,
     cook_config,
     end_zone,
+    end_zones,
     is_dual_fryer,
     pause_zone,
+    pause_zones,
     preset_values,
     resume_zone,
+    resume_zones,
     start_cook,
     validate,
     zone_status,
@@ -392,14 +395,14 @@ class FryerButton(FryerEntity, ButtonEntity):
             zones = [int(z) for z in ZONES if self._status(int(z)) in STOPPABLE_STATES]
             if not zones:
                 raise _error("fryer_not_active")
-            await self._run(*(lambda z=zone: end_zone(self.device, z) for zone in zones))
+            await self._run(lambda: end_zones(self.device, zones))
         elif self._action == "pause_resume_all":
             cooking = [int(z) for z in ZONES if self._status(int(z)) == "cooking"]
             paused = [int(z) for z in ZONES if self._status(int(z)) == "paused"]
             if cooking:
-                await self._run(*(lambda z=zone: pause_zone(self.device, z) for zone in cooking))
+                await self._run(lambda: pause_zones(self.device, cooking))
             elif paused:
-                await self._run(*(lambda z=zone: resume_zone(self.device, z) for zone in paused))
+                await self._run(lambda: resume_zones(self.device, paused))
             else:
                 raise _error("fryer_not_active")
         elif self._action == "pause_resume":

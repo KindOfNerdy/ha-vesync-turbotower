@@ -24,14 +24,14 @@ from .fryer import (
     ZONES,
     FryerCommandError,
     cook_config,
-    end_zone,
+    end_zones,
     get_presets,
     is_dual_fryer,
-    pause_zone,
+    pause_zones,
     preset_values,
     quit_sync,
     reset_preset,
-    resume_zone,
+    resume_zones,
     start_cook,
     update_preset,
     validate,
@@ -199,7 +199,7 @@ async def _stop(call: ServiceCall) -> None:
     zones = [z for z in _zones(call.data["zone"]) if _status(dev, z) in STOPPABLE_STATES]
     if not zones:
         raise _validation("nothing_to_do")
-    await _run(coordinator, *(lambda z=z: end_zone(dev, z) for z in zones))
+    await _run(coordinator, lambda: end_zones(dev, zones))
 
 
 async def _pause(call: ServiceCall) -> None:
@@ -207,7 +207,7 @@ async def _pause(call: ServiceCall) -> None:
     zones = [z for z in _zones(call.data["zone"]) if _status(dev, z) == "cooking"]
     if not zones:
         raise _validation("nothing_to_do")
-    await _run(coordinator, *(lambda z=z: pause_zone(dev, z) for z in zones))
+    await _run(coordinator, lambda: pause_zones(dev, zones))
 
 
 async def _resume(call: ServiceCall) -> None:
@@ -215,7 +215,7 @@ async def _resume(call: ServiceCall) -> None:
     zones = [z for z in _zones(call.data["zone"]) if _status(dev, z) == "paused"]
     if not zones:
         raise _validation("nothing_to_do")
-    await _run(coordinator, *(lambda z=z: resume_zone(dev, z) for z in zones))
+    await _run(coordinator, lambda: resume_zones(dev, zones))
 
 
 async def _quit_sync(call: ServiceCall) -> None:
