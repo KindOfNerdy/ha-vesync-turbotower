@@ -1,0 +1,203 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "VeSync-Konto ist bereits konfiguriert",
+            "wrong_account": "Das Konto, das du erneut authentifizieren möchtest, ist ein anderes als das konfigurierte."
+        },
+        "error": {
+            "api_response_error": "API-Antwort-Fehler",
+            "invalid_auth": "Ungültige Authentifizierung",
+            "server_error": "Serverfehler aufgetreten"
+        },
+        "step": {
+            "reauth_confirm": {
+                "data": {
+                    "password": "Passwort",
+                    "username": "E-Mail"
+                },
+                "data_description": {
+                    "password": "Das mit deinem VeSync-Konto verknüpfte Passwort",
+                    "username": "Die mit deinem VeSync-Konto verknüpfte E-Mail-Adresse"
+                },
+                "description": "Die VeSync-Integration muss dein Konto erneut authentifizieren",
+                "title": "Authentifizierung für {name} abgelaufen"
+            },
+            "user": {
+                "data": {
+                    "password": "Passwort",
+                    "username": "E-Mail"
+                },
+                "data_description": {
+                    "password": "Das mit deinem VeSync-Konto verknüpfte Passwort",
+                    "username": "Die mit deinem VeSync-Konto verknüpfte E-Mail-Adresse"
+                },
+                "description": "Gib das in der VeSync-App verwendete Konto ein. 2FA wird nicht unterstützt und muss deaktiviert werden.",
+                "title": "Benutzername und Passwort eingeben"
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "water_lacks": {
+                "name": "Wasserstand niedrig"
+            },
+            "water_tank_lifted": {
+                "name": "Wassertank angehoben"
+            }
+        },
+        "button": {
+            "reset_filter": {
+                "name": "Filter zurücksetzen"
+            }
+        },
+        "fan": {
+            "vesync": {
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "auto": "Auto",
+                            "eco": "Eco",
+                            "normal": "Normal",
+                            "pet": "Haustier",
+                            "sleep": "Schlaf",
+                            "turbo": "Turbo"
+                        }
+                    }
+                }
+            }
+        },
+        "humidifier": {
+            "vesync": {
+                "state_attributes": {
+                    "mode": {
+                        "state": {
+                            "humidity": "Luftfeuchtigkeit"
+                        }
+                    }
+                }
+            }
+        },
+        "number": {
+            "mist_level": {
+                "name": "Nebelstufe"
+            }
+        },
+        "select": {
+            "night_light_level": {
+                "name": "Nachtlicht-Stufe",
+                "state": {
+                    "bright": "Hell",
+                    "dim": "Gedimmt",
+                    "off": "Aus",
+                    "on": "Ein"
+                }
+            }
+        },
+        "sensor": {
+            "air_quality": {
+                "name": "Luftqualität"
+            },
+            "cook_set_temp": {
+                "name": "Eingestellte Kochtemperatur"
+            },
+            "cook_set_time": {
+                "name": "Eingestellte Kochzeit"
+            },
+            "cook_status": {
+                "name": "Kochstatus",
+                "state": {
+                    "cooking": "Kochen",
+                    "cooking_end": "Kochen beendet",
+                    "cooking_stop": "Kochen gestoppt",
+                    "heating": "Vorheizen",
+                    "preheat_end": "Vorheizen abgeschlossen",
+                    "preheat_stop": "Vorheizen gestoppt",
+                    "pull_out": "Schublade herausgezogen",
+                    "standby": "Standby"
+                }
+            },
+            "current_power": {
+                "name": "Aktuelle Leistung"
+            },
+            "current_temp": {
+                "name": "Aktuelle Temperatur"
+            },
+            "current_voltage": {
+                "name": "Aktuelle Spannung"
+            },
+            "energy_month": {
+                "name": "Monatlicher Energieverbrauch"
+            },
+            "energy_today": {
+                "name": "Energieverbrauch heute"
+            },
+            "energy_week": {
+                "name": "Wöchentlicher Energieverbrauch"
+            },
+            "energy_year": {
+                "name": "Jährlicher Energieverbrauch"
+            },
+            "filter_life": {
+                "name": "Restlebensdauer des Filters"
+            },
+            "preheat_set_time": {
+                "name": "Eingestellte Vorheizzeit"
+            },
+            "zone_status": {
+                "name": "Zone {zone} Status",
+                "state": {
+                    "off": "Aus",
+                    "ready": "Bereit (Start am Gerät)",
+                    "cooking": "Gart",
+                    "paused": "Pausiert",
+                    "waiting": "Wartet (Sync)",
+                    "basket_out": "Korb offen",
+                    "done": "Fertig"
+                }
+            },
+            "zone_end_time": {
+                "name": "Zone {zone} fertig um"
+            },
+            "fryer_mode": {
+                "name": "Modus",
+                "state": {
+                    "off": "Aus",
+                    "separate": "Getrennt",
+                    "match": "Match",
+                    "sync": "Sync"
+                }
+            }
+        },
+        "switch": {
+            "auto_off_config": {
+                "name": "Auto-Aus"
+            },
+            "child_lock": {
+                "name": "Kindersicherung"
+            },
+            "display": {
+                "name": "Display"
+            },
+            "drying_mode_power_off": {
+                "name": "Im ausgeschalteten Zustand Trocknungsmodus aktivieren"
+            }
+        }
+    },
+    "exceptions": {
+        "api_response_error": {
+            "message": "Ungültige Antwort von der VeSync-API"
+        },
+        "invalid_auth": {
+            "message": "Ungültige Authentifizierung"
+        },
+        "server_error": {
+            "message": "Beim Verbindungsaufbau zu VeSync ist ein Serverfehler aufgetreten."
+        }
+    },
+    "services": {
+        "update_devices": {
+            "description": "Fügt neue VeSync-Geräte zu Home Assistant hinzu.",
+            "name": "Geräte aktualisieren"
+        }
+    }
+}

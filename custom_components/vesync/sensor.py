@@ -1,0 +1,399 @@
+"""Support for voltage, power & energy sensors for VeSync outlets."""
+
+from collections.abc import Callable
+from dataclasses import dataclass
+import logging
+from typing import override
+
+from pyvesync.base_devices.vesyncbasedevice import VeSyncBaseDevice
+from pyvesync.const import TemperatureUnits
+from pyvesync.device_container import DeviceContainer
+
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass,
+)
+from homeassistant.const import (
+    EntityCategory,
+    UnitOfDensity,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfPower,
+    UnitOfRatio,
+    UnitOfTemperature,
+    UnitOfTime,
+)
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.typing import StateType
+
+from .common import is_air_fryer, is_humidifier, is_outlet, rgetattr
+from .const import AIR_FRYER_MODE_MAP, VS_DEVICES, VS_DISCOVERY
+from .coordinator import VesyncConfigEntry, VeSyncDataCoordinator
+from .entity import VeSyncBaseEntity
+from .fryer import (
+    MODE_OPTIONS,
+    ZONE_STATUS_OPTIONS,
+    ZONES,
+    fryer_mode,
+    is_dual_fryer,
+    zone_end_time,
+    zone_status,
+)
+
+# Single-chamber fryer sensors replaced by zone sensors on dual-zone fryers.
+GENERIC_FRYER_KEYS = {
+    "cook_status",
+    "current_temp",
+    "cook_set_temp",
+    "cook_set_time",
+    "preheat_set_time",
+}
+
+_LOGGER = logging.getLogger(__name__)
+
+PARALLEL_UPDATES = 0
+
+
+@dataclass(frozen=True, kw_only=True)
+class VeSyncSensorEntityDescription(SensorEntityDescription):
+    """Describe VeSync sensor entity."""
+
+    value_fn: Callable[[VeSyncBaseDevice], StateType]
+
+    exists_fn: Callable[[VeSyncBaseDevice], bool]
+
+    use_device_temperature_unit: bool = False
+
+
+def _get_cook_status(device: VeSyncBaseDevice) -> str | None:
+    """Return the normalized cook status if available."""
+    if (cook_status := device.state.cook_status) is None:
+        return None
+
+    cook_status = cook_status.lower()
+    return AIR_FRYER_MODE_MAP.get(cook_status, cook_status)
+
+
+SENSORS: tuple[VeSyncSensorEntityDescription, ...] = (
+    VeSyncSensorEntityDescription(
+        key="filter-life",
+        translation_key="filter_life",
+        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.state.filter_life,
+        exists_fn=lambda device: rgetattr(device, "state.filter_life") is not None,
+    ),
+    VeSyncSensorEntityDescription(
+        key="air-quality",
+        translation_key="air_quality",
+        value_fn=lambda device: device.state.air_quality_string,
+        exists_fn=(
+            lambda device: rgetattr(device, "state.air_quality_string") is not None
+        ),
+    ),
+    VeSyncSensorEntityDescription(
+        key="pm1",
+        device_class=SensorDeviceClass.PM1,
+        native_unit_of_measurement=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.pm1,
+        exists_fn=lambda device: rgetattr(device, "state.pm1") is not None,
+    ),
+    VeSyncSensorEntityDescription(
+        key="pm10",
+        device_class=SensorDeviceClass.PM10,
+        native_unit_of_measurement=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.pm10,
+        exists_fn=lambda device: rgetattr(device, "state.pm10") is not None,
+    ),
+    VeSyncSensorEntityDescription(
+        key="pm25",
+        device_class=SensorDeviceClass.PM25,
+        native_unit_of_measurement=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.pm25,
+        exists_fn=lambda device: rgetattr(device, "state.pm25") is not None,
+    ),
+    VeSyncSensorEntityDescription(
+        key="power",
+        translation_key="current_power",
+        device_class=SensorDeviceClass.POWER,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.power,
+        exists_fn=is_outlet,
+    ),
+    VeSyncSensorEntityDescription(
+        key="energy",
+        translation_key="energy_today",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda device: device.state.energy,
+        exists_fn=is_outlet,
+    ),
+    VeSyncSensorEntityDescription(
+        key="energy-weekly",
+        translation_key="energy_week",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda device: getattr(
+            device.state.weekly_history, "totalEnergy", None
+        ),
+        exists_fn=is_outlet,
+    ),
+    VeSyncSensorEntityDescription(
+        key="energy-monthly",
+        translation_key="energy_month",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda device: getattr(
+            device.state.monthly_history, "totalEnergy", None
+        ),
+        exists_fn=is_outlet,
+    ),
+    VeSyncSensorEntityDescription(
+        key="energy-yearly",
+        translation_key="energy_year",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        value_fn=lambda device: getattr(
+            device.state.yearly_history, "totalEnergy", None
+        ),
+        exists_fn=is_outlet,
+    ),
+    VeSyncSensorEntityDescription(
+        key="voltage",
+        translation_key="current_voltage",
+        device_class=SensorDeviceClass.VOLTAGE,
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.voltage,
+        exists_fn=is_outlet,
+    ),
+    VeSyncSensorEntityDescription(
+        key="humidity",
+        device_class=SensorDeviceClass.HUMIDITY,
+        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.humidity,
+        exists_fn=is_humidifier,
+    ),
+    VeSyncSensorEntityDescription(
+        key="temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.FAHRENHEIT,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.temperature,
+        exists_fn=lambda device: (
+            is_humidifier(device) and device.state.temperature is not None
+        ),
+    ),
+    VeSyncSensorEntityDescription(
+        key="cook_status",
+        translation_key="cook_status",
+        device_class=SensorDeviceClass.ENUM,
+        value_fn=_get_cook_status,
+        exists_fn=is_air_fryer,
+        options=[
+            "cooking_end",
+            "cooking",
+            "cooking_stop",
+            "heating",
+            "ready",
+            "appointing",
+            "hold",
+            "preheat_end",
+            "preheat_stop",
+            "pull_out",
+            "standby",
+        ],
+    ),
+    VeSyncSensorEntityDescription(
+        key="current_temp",
+        translation_key="current_temp",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        use_device_temperature_unit=True,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.current_temp,
+        exists_fn=is_air_fryer,
+    ),
+    VeSyncSensorEntityDescription(
+        key="cook_set_temp",
+        translation_key="cook_set_temp",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        use_device_temperature_unit=True,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda device: device.state.cook_set_temp,
+        exists_fn=is_air_fryer,
+    ),
+    VeSyncSensorEntityDescription(
+        key="cook_set_time",
+        translation_key="cook_set_time",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        value_fn=lambda device: device.state.cook_set_time,
+        exists_fn=is_air_fryer,
+    ),
+    VeSyncSensorEntityDescription(
+        key="preheat_set_time",
+        translation_key="preheat_set_time",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        value_fn=lambda device: device.state.preheat_set_time,
+        exists_fn=is_air_fryer,
+    ),
+)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: VesyncConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up switches."""
+
+    coordinator = config_entry.runtime_data
+
+    @callback
+    def discover(devices: list[VeSyncBaseDevice]) -> None:
+        """Add new devices to platform."""
+        _setup_entities(devices, async_add_entities, coordinator)
+
+    config_entry.async_on_unload(
+        async_dispatcher_connect(hass, VS_DISCOVERY.format(VS_DEVICES), discover)
+    )
+
+    _setup_entities(
+        config_entry.runtime_data.manager.devices, async_add_entities, coordinator
+    )
+
+
+@callback
+def _setup_entities(
+    devices: DeviceContainer | list[VeSyncBaseDevice],
+    async_add_entities: AddConfigEntryEntitiesCallback,
+    coordinator: VeSyncDataCoordinator,
+) -> None:
+    """Check if device is online and add entity."""
+
+    async_add_entities(
+        (
+            VeSyncSensorEntity(dev, description, coordinator)
+            for dev in devices
+            for description in SENSORS
+            if description.exists_fn(dev)
+            and not (is_dual_fryer(dev) and description.key in GENERIC_FRYER_KEYS)
+        ),
+        update_before_add=True,
+    )
+    fryers = [dev for dev in devices if is_dual_fryer(dev)]
+    async_add_entities(
+        [
+            *(
+                VeSyncFryerZoneSensor(dev, coordinator, zone, kind)
+                for dev in fryers
+                for zone in ZONES
+                for kind in ("status", "end_time")
+            ),
+            *(VeSyncFryerModeSensor(dev, coordinator) for dev in fryers),
+        ]
+    )
+
+
+class VeSyncSensorEntity(VeSyncBaseEntity, SensorEntity):
+    """Representation of a sensor describing a VeSync device."""
+
+    entity_description: VeSyncSensorEntityDescription
+
+    def __init__(
+        self,
+        device: VeSyncBaseDevice,
+        description: VeSyncSensorEntityDescription,
+        coordinator: VeSyncDataCoordinator,
+    ) -> None:
+        """Initialize the VeSync outlet device."""
+        super().__init__(device, coordinator)
+        self.entity_description = description
+        self._attr_unique_id = f"{super().unique_id}-{description.key}"
+
+    @property
+    @override
+    def native_value(self) -> StateType:
+        """Return the state of the sensor."""
+        return self.entity_description.value_fn(self.device)
+
+    @property
+    @override
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit the value was reported in by the sensor."""
+        if self.entity_description.use_device_temperature_unit:
+            if self.device.temp_unit == TemperatureUnits.CELSIUS:
+                return UnitOfTemperature.CELSIUS
+            if self.device.temp_unit == TemperatureUnits.FAHRENHEIT:
+                return UnitOfTemperature.FAHRENHEIT
+        return super().native_unit_of_measurement
+
+
+class VeSyncFryerZoneSensor(VeSyncBaseEntity, SensorEntity):
+    """Status or finish time of one fryer zone."""
+
+    def __init__(
+        self,
+        device: VeSyncBaseDevice,
+        coordinator: VeSyncDataCoordinator,
+        zone,
+        kind: str,
+    ) -> None:
+        """Initialize the zone sensor."""
+        super().__init__(device, coordinator)
+        self._zone = zone
+        self._kind = kind
+        self._attr_unique_id = f"{self.base_unique_id}-zone{int(zone)}-{kind}"
+        self._attr_translation_key = f"zone_{kind}"
+        self._attr_translation_placeholders = {"zone": str(int(zone))}
+        if kind == "status":
+            self._attr_device_class = SensorDeviceClass.ENUM
+            self._attr_options = ZONE_STATUS_OPTIONS
+        else:
+            self._attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    @override
+    def native_value(self):
+        """Return the zone status or finish time."""
+        if self._kind == "status":
+            return zone_status(self.device, self._zone)
+        return zone_end_time(self.device, self._zone)
+
+
+class VeSyncFryerModeSensor(VeSyncBaseEntity, SensorEntity):
+    """Separate / Match / Sync mode of a dual-zone fryer."""
+
+    _attr_translation_key = "fryer_mode"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = MODE_OPTIONS
+
+    def __init__(
+        self, device: VeSyncBaseDevice, coordinator: VeSyncDataCoordinator
+    ) -> None:
+        """Initialize the mode sensor."""
+        super().__init__(device, coordinator)
+        self._attr_unique_id = f"{self.base_unique_id}-fryer_mode"
+
+    @property
+    @override
+    def native_value(self) -> str:
+        """Return the current mode."""
+        return fryer_mode(
+            self.device, self.coordinator.fryer_sync_type.get(self.device.cid)
+        )
