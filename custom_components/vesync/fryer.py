@@ -1,4 +1,4 @@
-"""Dual-zone air fryer support (Turbo Tower fork).
+"""Dual-basket air fryer support (Turbo Tower fork).
 
 Thin layer over pyvesync 3.5.0 for the CAF-DC111S-AEU. Everything sent here was
 verified on a CAF-DC111S-AEU; move to pyvesync once upstream
@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any
 
-from pyvesync.base_devices.fryer_base import VeSyncFryer
+from pyvesync.base_devices.fryer_base import FryerState, VeSyncFryer
 from pyvesync.base_devices.vesyncbasedevice import VeSyncBaseDevice
 from pyvesync.const import BYPASSV2_SUB_DEVICE_PAYLOAD, AirFryerChamber, AirFryerCookStatus
 
@@ -22,26 +22,24 @@ from .common import is_air_fryer
 
 _LOGGER = logging.getLogger(__name__)
 
-ZONES: tuple[AirFryerChamber, ...] = (AirFryerChamber.CHAMBER_1, AirFryerChamber.CHAMBER_2)
+BASKETS: tuple[AirFryerChamber, ...] = (AirFryerChamber.CHAMBER_1, AirFryerChamber.CHAMBER_2)
 
-# Zone status options (sensor enum) and their mapping from pyvesync.
-ZONE_STATUS_OPTIONS = ["off", "ready", "cooking", "paused", "waiting", "basket_out", "done"]
-_ZONE_STATUS_MAP: dict[AirFryerCookStatus, str] = {
-    AirFryerCookStatus.STANDBY: "off",
-    AirFryerCookStatus.READY: "ready",
-    AirFryerCookStatus.COOKING: "cooking",
-    AirFryerCookStatus.HEATING: "cooking",
-    AirFryerCookStatus.COOK_STOP: "paused",
-    AirFryerCookStatus.HOLD: "waiting",
-    AirFryerCookStatus.PULL_OUT: "basket_out",
-    AirFryerCookStatus.COOK_END: "done",
+# pyvesync cook states, grouped for the integration's logic.
+RUNNING_STATUSES = {
+    AirFryerCookStatus.COOKING,
+    AirFryerCookStatus.HEATING,
+    AirFryerCookStatus.HOLD,
 }
-ACTIVE_ZONE_STATES = {"ready", "cooking", "paused", "waiting", "basket_out"}
-RUNNING_ZONE_STATES = {"cooking", "waiting"}
-
-MODE_OPTIONS = ["off", "separate", "match", "sync"]
-SYNC_TYPE_TO_MODE = {0: "separate", 1: "match", 2: "sync"}
-MODE_TO_SYNC_TYPE = {v: k for k, v in SYNC_TYPE_TO_MODE.items()}
+# Statuses of a cook that can be ended with endCook (device tests; COOK_END too).
+STOPPABLE_STATUSES = RUNNING_STATUSES | {
+    AirFryerCookStatus.READY,
+    AirFryerCookStatus.COOK_STOP,
+    AirFryerCookStatus.PREHEAT_STOP,
+    AirFryerCookStatus.PULL_OUT,
+    AirFryerCookStatus.COOK_END,
+}
+IDLE_STATUSES = {AirFryerCookStatus.STANDBY, AirFryerCookStatus.COOK_END}
+SYNC_TYPES = {"separate": 0, "match": 1, "sync": 2}
 
 # Program limits from the user manual (docs/programme.md): minutes and step.
 PROGRAMS = ["AirFry", "Bake", "Roast", "Grill", "Reheat", "Dry", "Proof"]
@@ -90,7 +88,7 @@ TURBO_TOWER_TYPES = ("CAF-DC111S-AEU",)
 
 
 def is_dual_fryer(device: VeSyncBaseDevice) -> bool:
-    """Return True for dual-zone fryers handled by this module (Turbo Tower)."""
+    """Return True for dual-basket fryers handled by this module (Turbo Tower)."""
     return (
         is_air_fryer(device)
         and device.device_type in TURBO_TOWER_TYPES
@@ -98,43 +96,57 @@ def is_dual_fryer(device: VeSyncBaseDevice) -> bool:
     )
 
 
-def raw_zone_item(device: VeSyncFryer, zone: AirFryerChamber) -> dict[str, Any]:
-    """Return the zone's item from the last status poll (pyvesync drops standby values)."""
-    data = getattr(device.last_response, "response_data", None) or {}
-    inner = (data.get("result") or {}).get("result") or {}
-    for item in inner.get("statusList") or []:
-        if item.get("chamber") == int(zone):
-            return item
-    return {}
+def basket_state(device: VeSyncFryer, basket: AirFryerChamber | int) -> FryerState | None:
+    """Return pyvesync's state of one basket."""
+    return device.get_chamber_state(AirFryerChamber(int(basket)))
 
 
-def _panel_selected(device: VeSyncFryer, zone: AirFryerChamber) -> bool:
-    """Fryer is on and a program is chosen on the panel but not started.
+def cook_status(device: VeSyncFryer, basket: AirFryerChamber | int) -> AirFryerCookStatus | None:
+    """Return the cook status of one basket."""
+    state = basket_state(device, basket)
+    return state.cook_status if state else None
 
-    The cloud then reports ``standby`` with cookTemp/cookSetTime set (device test
-    "observe"); a switched-off zone reports zeros.
+
+def panel_selected(device: VeSyncFryer, basket: AirFryerChamber | int) -> bool:
+    """Return True if a program was chosen on the control panel but not started.
+
+    The cloud reports ``standby`` with the chosen values (device test "observe").
+    It refuses endCook then (11920000), so only the fryer can cancel it.
+    pyvesync 3.5.0 drops these values; see compat._fix_standby_selection.
     """
-    item = raw_zone_item(device, zone)
-    return item.get("cookStatus") == "standby" and bool(item.get("cookSetTime"))
+    state = basket_state(device, basket)
+    return (
+        state is not None
+        and state.cook_status == AirFryerCookStatus.STANDBY
+        and bool(state.cook_set_time)
+    )
 
 
-def zone_status(device: VeSyncFryer, zone: AirFryerChamber) -> str | None:
-    """Return the zone status option."""
-    state = device.get_chamber_state(zone)
-    if state is None or state.cook_status is None:
+def is_busy(device: VeSyncFryer, basket: AirFryerChamber | int) -> bool:
+    """Return True if the basket has a cook (also chosen on the panel or basket out)."""
+    status = cook_status(device, basket)
+    if status is None:
+        return False
+    return status not in IDLE_STATUSES or panel_selected(device, basket)
+
+
+def can_stop(device: VeSyncFryer, basket: AirFryerChamber | int) -> bool:
+    """Return True if endCook is expected to work for the basket.
+
+    An idle fryer with an empty slot also reports ``pullOut``, but without cook
+    values; there is nothing to end then (11923000).
+    """
+    state = basket_state(device, basket)
+    if state is None or state.cook_status not in STOPPABLE_STATUSES:
+        return False
+    return state.cook_status != AirFryerCookStatus.PULL_OUT or bool(state.cook_set_time)
+
+
+def state_end_time(state: FryerState) -> datetime | None:
+    """Return when a basket finishes, while it cooks or waits (Sync)."""
+    if state.cook_status not in RUNNING_STATUSES:
         return None
-    status = _ZONE_STATUS_MAP.get(state.cook_status)
-    if status == "off" and _panel_selected(device, zone):
-        return "ready"
-    return status
-
-
-def zone_end_time(device: VeSyncFryer, zone: AirFryerChamber) -> datetime | None:
-    """Return when the zone finishes, while it cooks or waits (Sync)."""
-    if zone_status(device, zone) not in RUNNING_ZONE_STATES:
-        return None
-    state = device.get_chamber_state(zone)
-    remaining = state.total_time_remaining if state else None
+    remaining = state.total_time_remaining
     if remaining is None:
         return None
     # Round to whole minutes so the state doesn't change on every poll.
@@ -142,38 +154,23 @@ def zone_end_time(device: VeSyncFryer, zone: AirFryerChamber) -> datetime | None
     return end.replace(second=0, microsecond=0) + timedelta(minutes=1 if end.second >= 30 else 0)
 
 
-def zone_values(device: VeSyncFryer, zone: AirFryerChamber) -> tuple[str | None, int | None, int | None]:
-    """Return (program, temperature °C, time in minutes) of the zone's current cook."""
-    state = device.get_chamber_state(zone)
-    if state is None or zone_status(device, zone) in (None, "off"):
+def basket_values(
+    device: VeSyncFryer, basket: AirFryerChamber | int
+) -> tuple[str | None, int | None, int | None]:
+    """Return (program, temperature °C, time in minutes) of the basket's cook."""
+    state = basket_state(device, basket)
+    if state is None or not is_busy(device, basket):
         return None, None, None
-    if _panel_selected(device, zone):
-        item = raw_zone_item(device, zone)
-        return item.get("mode"), item.get("cookTemp"), round(item["cookSetTime"] / 60)
     minutes = round(state.cook_set_time / 60) if state.cook_set_time else None
     return state.cook_mode, state.cook_set_temp, minutes
 
 
-def any_zone_active(device: VeSyncFryer) -> bool:
-    """Return True if a zone is doing something that needs faster polling."""
-    return any(zone_status(device, z) in ACTIVE_ZONE_STATES for z in ZONES)
-
-
-def reported_sync_type(device: VeSyncFryer) -> int | None:
-    """Return syncType from the last status poll (pyvesync only keeps Sync as a bool)."""
-    resp = device.last_response
-    data = getattr(resp, "response_data", None) or {}
-    inner = (data.get("result") or {}).get("result") or {}
-    if "statusList" not in inner:
-        return None
-    return inner.get("syncType")
-
-
-def fryer_mode(device: VeSyncFryer, sync_type: int | None) -> str:
-    """Return the device mode option."""
-    if not any(zone_status(device, z) in ACTIVE_ZONE_STATES for z in ZONES):
-        return "off"
-    return SYNC_TYPE_TO_MODE.get(sync_type or 0, "separate")
+def any_basket_active(device: VeSyncFryer) -> bool:
+    """Return True if a basket is doing something that needs faster polling."""
+    return any(
+        is_busy(device, b) and cook_status(device, b) != AirFryerCookStatus.COOK_END
+        for b in BASKETS
+    )
 
 
 # --- Commands -----------------------------------------------------------------
@@ -198,12 +195,12 @@ def _mode_config(device: VeSyncFryer, program: str):
 
 
 def cook_config(
-    device: VeSyncFryer, zone: int, program: str, temperature: int, minutes: int
+    device: VeSyncFryer, basket: int, program: str, temperature: int, minutes: int
 ) -> dict[str, Any]:
     """Build one cookConfigs item."""
     config = _mode_config(device, program)
     return {
-        "chamber": zone,
+        "chamber": basket,
         "cookSetTime": minutes * 60,
         "cookTemp": temperature,
         "mode": program,
@@ -220,7 +217,10 @@ async def start_cook(
     sync_type: int = 0,
     ready_start: bool = False,
 ) -> None:
-    """Start one or both zones (startMultiCook)."""
+    """Start one or both baskets (startMultiCook).
+
+    ready_start=True only sends the program; it starts with the button on the fryer.
+    """
     work_chamber = configs[0]["chamber"] if len(configs) == 1 else 4
     await _call(
         device,
@@ -236,59 +236,44 @@ async def start_cook(
     )
 
 
-async def end_zone(device: VeSyncFryer, zone: int) -> None:
-    """End one zone."""
-    await _call(device, "endCook", {"chamber": zone})
+BOTH_BASKETS = 4  # chamber value for both baskets (endCook/pauseWork/resumeWork)
 
 
-async def pause_zone(device: VeSyncFryer, zone: int) -> None:
-    """Pause one zone."""
-    await _call(device, "pauseWork", {"chamber": zone})
+async def _send(device: VeSyncFryer, method: str, baskets: list[int]) -> None:
+    """Send a command for one basket, or once for both; fall back to one per basket.
 
-
-async def resume_zone(device: VeSyncFryer, zone: int) -> None:
-    """Resume one zone."""
-    await _call(device, "resumeWork", {"chamber": zone})
-
-
-BOTH_ZONES = 4  # chamber value for both zones (endCook/pauseWork/resumeWork)
-
-
-async def _all_zones(device: VeSyncFryer, method: str, zones: list[int]) -> None:
-    """Send one command for both zones; fall back to one per zone.
-
-    One request with chamber 4 works while both zones run (device tests
+    One request with chamber 4 works while both baskets run (device tests
     "endboth", "pauseall"); after a dissolved Sync the cloud refuses it
-    (11920000), so then each zone is sent on its own.
+    (11920000), so then each basket is sent on its own.
     """
-    if len(zones) == 2:
+    if len(baskets) == 2:
         try:
-            await _call(device, method, {"chamber": BOTH_ZONES})
+            await _call(device, method, {"chamber": BOTH_BASKETS})
         except FryerCommandError:
             pass
         else:
             return
-    for zone in zones:
-        await _call(device, method, {"chamber": zone})
+    for basket in baskets:
+        await _call(device, method, {"chamber": basket})
 
 
-async def end_zones(device: VeSyncFryer, zones: list[int]) -> None:
-    """End the given zones."""
-    await _all_zones(device, "endCook", zones)
+async def end_baskets(device: VeSyncFryer, baskets: list[int]) -> None:
+    """End the given baskets."""
+    await _send(device, "endCook", baskets)
 
 
-async def pause_zones(device: VeSyncFryer, zones: list[int]) -> None:
-    """Pause the given zones."""
-    await _all_zones(device, "pauseWork", zones)
+async def pause_baskets(device: VeSyncFryer, baskets: list[int]) -> None:
+    """Pause the given baskets."""
+    await _send(device, "pauseWork", baskets)
 
 
-async def resume_zones(device: VeSyncFryer, zones: list[int]) -> None:
-    """Resume the given zones."""
-    await _all_zones(device, "resumeWork", zones)
+async def resume_baskets(device: VeSyncFryer, baskets: list[int]) -> None:
+    """Resume the given baskets."""
+    await _send(device, "resumeWork", baskets)
 
 
 async def quit_sync(device: VeSyncFryer) -> None:
-    """Leave Sync; a waiting zone starts at once."""
+    """Leave Sync; a waiting basket starts at once."""
     await _call(device, "quitSyncFinish", {})
 
 
@@ -316,8 +301,8 @@ START_MODE_OPTIONS = ["separate", "sync", "match"]
 
 
 @dataclass
-class ZoneForm:
-    """Program, temperature (°C) and time (min) entered for one zone."""
+class BasketForm:
+    """Program, temperature (°C) and time (min) entered for one basket."""
 
     program: str
     temperature: int
@@ -328,10 +313,9 @@ class ZoneForm:
 class FryerForm:
     """Form state of one fryer."""
 
-    zones: dict[int, ZoneForm]
+    baskets: dict[int, BasketForm]
     start_mode: str = "separate"
-    direct_start: bool = False  # False: program waits for the start button (readyStart)
-    edited: bool = False  # True once the user changed a zone value
+    edited: bool = False  # True once the user changed a basket value
 
 
 def preset_values(presets: dict[str, dict] | None, program: str) -> tuple[int, int]:
@@ -375,9 +359,9 @@ def validate(program: str, temperature: int, minutes: int) -> None:
 
 
 def new_form(presets: dict[str, dict] | None) -> FryerForm:
-    """Create a form with Air Fry and the device's defaults in both zones."""
-    zones = {}
-    for zone in ZONES:
+    """Create a form with Air Fry and the device's defaults in both baskets."""
+    baskets = {}
+    for basket in BASKETS:
         temperature, minutes = preset_values(presets, "AirFry")
-        zones[int(zone)] = ZoneForm("AirFry", temperature, minutes)
-    return FryerForm(zones=zones)
+        baskets[int(basket)] = BasketForm("AirFry", temperature, minutes)
+    return FryerForm(baskets=baskets)

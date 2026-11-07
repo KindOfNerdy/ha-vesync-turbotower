@@ -2,9 +2,11 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 import logging
 from typing import override
 
+from pyvesync.base_devices.fryer_base import FryerState
 from pyvesync.base_devices.vesyncbasedevice import VeSyncBaseDevice
 from pyvesync.const import TemperatureUnits
 from pyvesync.device_container import DeviceContainer
@@ -34,24 +36,7 @@ from .common import is_air_fryer, is_humidifier, is_outlet, rgetattr
 from .const import AIR_FRYER_MODE_MAP, VS_DEVICES, VS_DISCOVERY
 from .coordinator import VesyncConfigEntry, VeSyncDataCoordinator
 from .entity import VeSyncBaseEntity
-from .fryer import (
-    MODE_OPTIONS,
-    ZONE_STATUS_OPTIONS,
-    ZONES,
-    fryer_mode,
-    is_dual_fryer,
-    zone_end_time,
-    zone_status,
-)
-
-# Single-chamber fryer sensors replaced by zone sensors on dual-zone fryers.
-GENERIC_FRYER_KEYS = {
-    "cook_status",
-    "current_temp",
-    "cook_set_temp",
-    "cook_set_time",
-    "preheat_set_time",
-}
+from .fryer import state_end_time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,16 +47,16 @@ PARALLEL_UPDATES = 0
 class VeSyncSensorEntityDescription(SensorEntityDescription):
     """Describe VeSync sensor entity."""
 
-    value_fn: Callable[[VeSyncBaseDevice], StateType]
-
     exists_fn: Callable[[VeSyncBaseDevice], bool]
 
+    value_fn: Callable[[VeSyncBaseDevice], StateType] | None = None
+    state_value_fn: Callable[[FryerState], StateType | datetime] | None = None
     use_device_temperature_unit: bool = False
 
 
-def _get_cook_status(device: VeSyncBaseDevice) -> str | None:
+def _get_cook_status(state: FryerState) -> str | None:
     """Return the normalized cook status if available."""
-    if (cook_status := device.state.cook_status) is None:
+    if (cook_status := state.cook_status) is None:
         return None
 
     cook_status = cook_status.lower()
@@ -202,7 +187,7 @@ SENSORS: tuple[VeSyncSensorEntityDescription, ...] = (
         key="cook_status",
         translation_key="cook_status",
         device_class=SensorDeviceClass.ENUM,
-        value_fn=_get_cook_status,
+        state_value_fn=_get_cook_status,
         exists_fn=is_air_fryer,
         options=[
             "cooking_end",
@@ -224,7 +209,7 @@ SENSORS: tuple[VeSyncSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         use_device_temperature_unit=True,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda device: device.state.current_temp,
+        state_value_fn=lambda state: state.current_temp,
         exists_fn=is_air_fryer,
     ),
     VeSyncSensorEntityDescription(
@@ -233,7 +218,7 @@ SENSORS: tuple[VeSyncSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         use_device_temperature_unit=True,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda device: device.state.cook_set_temp,
+        state_value_fn=lambda state: state.cook_set_temp,
         exists_fn=is_air_fryer,
     ),
     VeSyncSensorEntityDescription(
@@ -241,7 +226,7 @@ SENSORS: tuple[VeSyncSensorEntityDescription, ...] = (
         translation_key="cook_set_time",
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        value_fn=lambda device: device.state.cook_set_time,
+        state_value_fn=lambda state: state.cook_set_time,
         exists_fn=is_air_fryer,
     ),
     VeSyncSensorEntityDescription(
@@ -249,7 +234,14 @@ SENSORS: tuple[VeSyncSensorEntityDescription, ...] = (
         translation_key="preheat_set_time",
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        value_fn=lambda device: device.state.preheat_set_time,
+        state_value_fn=lambda state: state.preheat_set_time,
+        exists_fn=is_air_fryer,
+    ),
+    VeSyncSensorEntityDescription(
+        key="cook_end_time",
+        translation_key="cook_end_time",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        state_value_fn=state_end_time,
         exists_fn=is_air_fryer,
     ),
 )
@@ -286,28 +278,23 @@ def _setup_entities(
 ) -> None:
     """Check if device is online and add entity."""
 
-    async_add_entities(
-        (
-            VeSyncSensorEntity(dev, description, coordinator)
-            for dev in devices
-            for description in SENSORS
-            if description.exists_fn(dev)
-            and not (is_dual_fryer(dev) and description.key in GENERIC_FRYER_KEYS)
-        ),
-        update_before_add=True,
-    )
-    fryers = [dev for dev in devices if is_dual_fryer(dev)]
-    async_add_entities(
-        [
-            *(
-                VeSyncFryerZoneSensor(dev, coordinator, zone, kind)
-                for dev in fryers
-                for zone in ZONES
-                for kind in ("status", "end_time")
-            ),
-            *(VeSyncFryerModeSensor(dev, coordinator) for dev in fryers),
-        ]
-    )
+    entities: list[VeSyncSensorEntity] = []
+    for device in devices:
+        for description in SENSORS:
+            if description.state_value_fn is not None:
+                if not is_air_fryer(device):
+                    continue
+                entities.append(
+                    VeSyncSensorEntity(device, description, coordinator, chamber=1)
+                )
+                if device.is_dual_chamber:
+                    entities.append(
+                        VeSyncSensorEntity(device, description, coordinator, chamber=2)
+                    )
+            elif description.exists_fn(device):
+                entities.append(VeSyncSensorEntity(device, description, coordinator))
+
+    async_add_entities(entities, update_before_add=True)
 
 
 class VeSyncSensorEntity(VeSyncBaseEntity, SensorEntity):
@@ -320,16 +307,31 @@ class VeSyncSensorEntity(VeSyncBaseEntity, SensorEntity):
         device: VeSyncBaseDevice,
         description: VeSyncSensorEntityDescription,
         coordinator: VeSyncDataCoordinator,
+        chamber: int | None = None,
     ) -> None:
         """Initialize the VeSync outlet device."""
         super().__init__(device, coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{super().unique_id}-{description.key}"
+        self._fryer_state: FryerState | None = None
+        if chamber is not None and is_air_fryer(device):
+            self._fryer_state = (
+                device.state_chamber_2 if chamber == 2 else device.state_chamber_1
+            )
+            self._attr_translation_placeholders = {"basket": str(chamber)}
+            if chamber == 2:
+                self._attr_unique_id += "-chamber_2"
 
     @property
     @override
-    def native_value(self) -> StateType:
+    def native_value(self) -> StateType | datetime:
         """Return the state of the sensor."""
+        if self.entity_description.state_value_fn is not None:
+            if self._fryer_state is None:
+                return None
+            return self.entity_description.state_value_fn(self._fryer_state)
+        if self.entity_description.value_fn is None:
+            return None
         return self.entity_description.value_fn(self.device)
 
     @property
@@ -342,58 +344,3 @@ class VeSyncSensorEntity(VeSyncBaseEntity, SensorEntity):
             if self.device.temp_unit == TemperatureUnits.FAHRENHEIT:
                 return UnitOfTemperature.FAHRENHEIT
         return super().native_unit_of_measurement
-
-
-class VeSyncFryerZoneSensor(VeSyncBaseEntity, SensorEntity):
-    """Status or finish time of one fryer zone."""
-
-    def __init__(
-        self,
-        device: VeSyncBaseDevice,
-        coordinator: VeSyncDataCoordinator,
-        zone,
-        kind: str,
-    ) -> None:
-        """Initialize the zone sensor."""
-        super().__init__(device, coordinator)
-        self._zone = zone
-        self._kind = kind
-        self._attr_unique_id = f"{self.base_unique_id}-zone{int(zone)}-{kind}"
-        self._attr_translation_key = f"zone_{kind}"
-        self._attr_translation_placeholders = {"zone": str(int(zone))}
-        if kind == "status":
-            self._attr_device_class = SensorDeviceClass.ENUM
-            self._attr_options = ZONE_STATUS_OPTIONS
-        else:
-            self._attr_device_class = SensorDeviceClass.TIMESTAMP
-
-    @property
-    @override
-    def native_value(self):
-        """Return the zone status or finish time."""
-        if self._kind == "status":
-            return zone_status(self.device, self._zone)
-        return zone_end_time(self.device, self._zone)
-
-
-class VeSyncFryerModeSensor(VeSyncBaseEntity, SensorEntity):
-    """Separate / Match / Sync mode of a dual-zone fryer."""
-
-    _attr_translation_key = "fryer_mode"
-    _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options = MODE_OPTIONS
-
-    def __init__(
-        self, device: VeSyncBaseDevice, coordinator: VeSyncDataCoordinator
-    ) -> None:
-        """Initialize the mode sensor."""
-        super().__init__(device, coordinator)
-        self._attr_unique_id = f"{self.base_unique_id}-fryer_mode"
-
-    @property
-    @override
-    def native_value(self) -> str:
-        """Return the current mode."""
-        return fryer_mode(
-            self.device, self.coordinator.fryer_sync_type.get(self.device.cid)
-        )

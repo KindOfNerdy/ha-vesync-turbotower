@@ -1,6 +1,6 @@
 update_devices:
 
-# --- Turbo Tower fork: dual-zone air fryer ---------------------------------------
+# --- Turbo Tower fork: dual-basket air fryer -------------------------------------
 
 start_cook:
   fields:
@@ -8,12 +8,12 @@ start_cook:
       selector:
         device:
           integration: vesync
-    zone:
+    basket:
       required: true
       default: "1"
       selector:
         select:
-          translation_key: start_zone
+          translation_key: start_basket
           options: ["1", "2", "both"]
     program:
       required: true
@@ -38,18 +38,19 @@ start_cook:
           step: 1
           unit_of_measurement: min
           mode: box
-    direct_start:
+    send_only:
+      default: false
       selector:
         boolean:
-    zone_2:
+    basket_2:
       collapsed: true
       fields:
         mode:
-          default: independent
+          default: separate
           selector:
             select:
               translation_key: start_mode
-              options: [independent, sync, match]
+              options: [separate, sync, match]
         program_2:
           selector:
             select:
@@ -71,30 +72,6 @@ start_cook:
               step: 1
               unit_of_measurement: min
               mode: box
-
-stop: &zone_action
-  fields:
-    device_id:
-      selector:
-        device:
-          integration: vesync
-    zone:
-      default: all
-      selector:
-        select:
-          translation_key: action_zone
-          options: ["1", "2", all]
-
-pause: *zone_action
-
-resume: *zone_action
-
-quit_sync:
-  fields:
-    device_id:
-      selector:
-        device:
-          integration: vesync
 
 set_preset:
   fields:

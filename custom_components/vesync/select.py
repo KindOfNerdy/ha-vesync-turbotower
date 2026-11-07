@@ -157,7 +157,7 @@ def _setup_entities(
     coordinator: VeSyncDataCoordinator,
 ) -> None:
     """Add select entities."""
-    # Turbo Tower fork: dual-zone fryer entities
+    # Turbo Tower fork: dual-basket fryer entities
     async_add_entities(fryer_entities.select_entities(devices, coordinator))
 
     async_add_entities(

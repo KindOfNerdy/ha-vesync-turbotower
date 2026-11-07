@@ -16,14 +16,13 @@ from .const import UPDATE_INTERVAL, UPDATE_INTERVAL_ENERGY
 from .fryer import (
     FryerCommandError,
     FryerForm,
-    any_zone_active,
+    any_basket_active,
     get_presets,
     is_dual_fryer,
     new_form,
-    reported_sync_type,
 )
 
-# Turbo Tower fork: poll faster while a fryer zone is active, presets once a day.
+# Turbo Tower fork: poll faster while a fryer basket is active, presets once a day.
 UPDATE_INTERVAL_FRYER_ACTIVE = 20
 UPDATE_INTERVAL_FRYER_PRESETS = 24 * 60 * 60
 
@@ -44,8 +43,7 @@ class VeSyncDataCoordinator(DataUpdateCoordinator[None]):
     ) -> None:
         """Initialize."""
         self.manager = manager
-        # Per fryer (cid): syncType of the last poll and the device presets.
-        self.fryer_sync_type: dict[str, int | None] = {}
+        # Per fryer (cid): the device presets and the form entered in HA.
         self.fryer_presets: dict[str, dict[str, dict]] = {}
         self.fryer_forms: dict[str, FryerForm] = {}
 
@@ -86,11 +84,8 @@ class VeSyncDataCoordinator(DataUpdateCoordinator[None]):
         return self.fryer_forms[cid]
 
     async def _async_update_fryers(self) -> None:
-        """Track fryer sync type, presets and polling speed."""
+        """Track fryer presets and polling speed."""
         fryers = [dev for dev in self.manager.devices.air_fryers if is_dual_fryer(dev)]
-        for fryer in fryers:
-            self.fryer_sync_type[fryer.cid] = reported_sync_type(fryer)
-
         if fryers and (
             self.presets_time is None
             or time.time() - self.presets_time >= UPDATE_INTERVAL_FRYER_PRESETS
@@ -102,11 +97,11 @@ class VeSyncDataCoordinator(DataUpdateCoordinator[None]):
                     form = self.fryer_forms.get(fryer.cid)
                     if form is not None and not form.edited:
                         fresh = new_form(self.fryer_presets[fryer.cid])
-                        form.zones = fresh.zones
+                        form.baskets = fresh.baskets
                 except (FryerCommandError, VeSyncError) as err:
                     _LOGGER.warning("Could not read presets of %s: %s", fryer.device_name, err)
 
-        fast = any(any_zone_active(fryer) for fryer in fryers)
+        fast = any(any_basket_active(fryer) for fryer in fryers)
         self.update_interval = timedelta(
             seconds=UPDATE_INTERVAL_FRYER_ACTIVE if fast else UPDATE_INTERVAL
         )

@@ -49,23 +49,38 @@
       "reset_filter": {
         "name": "Reset filter"
       },
-      "zone_start": {
-        "name": "Start zone {zone}"
+      "basket_start": {
+        "name": "Start basket {basket}"
       },
-      "zone_stop": {
-        "name": "Stop zone {zone}"
+      "basket_send": {
+        "name": "Send basket {basket} to fryer"
       },
-      "zone_pause_resume": {
-        "name": "Pause/resume zone {zone}"
+      "basket_pause": {
+        "name": "Pause basket {basket}"
+      },
+      "basket_resume": {
+        "name": "Resume basket {basket}"
+      },
+      "basket_stop": {
+        "name": "Stop basket {basket}"
       },
       "start_both": {
-        "name": "Start both zones"
+        "name": "Start both baskets"
+      },
+      "send_both": {
+        "name": "Send both baskets to fryer"
+      },
+      "pause_all": {
+        "name": "Pause all"
+      },
+      "resume_all": {
+        "name": "Resume all"
       },
       "stop_all": {
         "name": "Stop all"
       },
-      "pause_resume_all": {
-        "name": "Pause/resume all"
+      "quit_sync": {
+        "name": "Leave Sync"
       }
     },
     "fan": {
@@ -102,11 +117,11 @@
       "warm_mist_level": {
         "name": "Warm mist level"
       },
-      "zone_temperature": {
-        "name": "Zone {zone} temperature"
+      "basket_temperature": {
+        "name": "Basket {basket} temperature"
       },
-      "zone_time": {
-        "name": "Zone {zone} time"
+      "basket_time": {
+        "name": "Basket {basket} time"
       }
     },
     "select": {
@@ -119,8 +134,16 @@
           "on": "On"
         }
       },
-      "zone_program": {
-        "name": "Zone {zone} program",
+      "start_mode": {
+        "name": "Start mode for both baskets",
+        "state": {
+          "separate": "Separate",
+          "sync": "Sync (finish together)",
+          "match": "Match (basket 1 values for both)"
+        }
+      },
+      "basket_program": {
+        "name": "Basket {basket} program",
         "state": {
           "airfry": "Air Fry",
           "bake": "Bake",
@@ -130,14 +153,6 @@
           "dry": "Dehydrate",
           "proof": "Proof"
         }
-      },
-      "start_mode": {
-        "name": "Start mode both zones",
-        "state": {
-          "separate": "Separate",
-          "sync": "Sync (finish together)",
-          "match": "Match (zone 1 values for both)"
-        }
       }
     },
     "sensor": {
@@ -145,13 +160,13 @@
         "name": "Air quality"
       },
       "cook_set_temp": {
-        "name": "Cooking set temperature"
+        "name": "Basket {basket} cooking set temperature"
       },
       "cook_set_time": {
-        "name": "Cooking set time"
+        "name": "Basket {basket} cooking set time"
       },
       "cook_status": {
-        "name": "Cooking status",
+        "name": "Basket {basket} cooking status",
         "state": {
           "appointing": "Appointing",
           "cooking": "Cooking",
@@ -170,7 +185,7 @@
         "name": "Current power"
       },
       "current_temp": {
-        "name": "Current temperature"
+        "name": "Basket {basket} current temperature"
       },
       "current_voltage": {
         "name": "Current voltage"
@@ -191,31 +206,10 @@
         "name": "Filter lifetime"
       },
       "preheat_set_time": {
-        "name": "Preheating set time"
+        "name": "Basket {basket} preheating set time"
       },
-      "zone_status": {
-        "name": "Zone {zone} status",
-        "state": {
-          "off": "Off",
-          "ready": "Ready",
-          "cooking": "Cooking",
-          "paused": "Paused",
-          "waiting": "Waiting (Sync)",
-          "basket_out": "Basket out",
-          "done": "Done"
-        }
-      },
-      "zone_end_time": {
-        "name": "Zone {zone} finishes at"
-      },
-      "fryer_mode": {
-        "name": "Mode",
-        "state": {
-          "off": "Off",
-          "separate": "Separate",
-          "match": "Match",
-          "sync": "Sync"
-        }
+      "cook_end_time": {
+        "name": "Basket {basket} finish time"
       }
     },
     "switch": {
@@ -230,14 +224,11 @@
       },
       "drying_mode_power_off": {
         "name": "Enable drying mode while power is off"
-      },
-      "direct_start": {
-        "name": "Direct start"
       }
     },
     "event": {
-      "zone_event": {
-        "name": "Zone {zone} event",
+      "basket_event": {
+        "name": "Basket {basket} event",
         "state_attributes": {
           "event_type": {
             "state": {
@@ -264,18 +255,6 @@
     "server_error": {
       "message": "Server error occurred while connecting to VeSync"
     },
-    "zone_busy": {
-      "message": "Zone {zone} is in use. Values can't be changed and it can't be started now."
-    },
-    "fryer_busy": {
-      "message": "A zone is in use. Stop it before starting both zones."
-    },
-    "zone_not_active": {
-      "message": "Zone {zone} is not cooking."
-    },
-    "fryer_not_active": {
-      "message": "No zone is active."
-    },
     "invalid_values": {
       "message": "Invalid values: {details}"
     },
@@ -283,25 +262,46 @@
       "message": "The air fryer refused the command {command} (code {code})."
     },
     "no_fryer": {
-      "message": "No dual-zone air fryer found."
+      "message": "No dual-basket air fryer found."
     },
     "choose_fryer": {
       "message": "There are several air fryers. Please choose one."
     },
     "not_a_fryer": {
-      "message": "The chosen device is not a dual-zone air fryer."
-    },
-    "zone_2_missing": {
-      "message": "Please choose a program for zone 2 (or use Match)."
-    },
-    "nothing_to_do": {
-      "message": "No zone is in a state for this action."
+      "message": "The chosen device is not a dual-basket air fryer."
     },
     "not_in_sync": {
       "message": "The air fryer is not in sync mode."
     },
+    "basket_busy": {
+      "message": "Basket {basket} is in use. Values can't be changed and it can't be started now."
+    },
     "basket_out": {
-      "message": "The basket of zone {zone} is open."
+      "message": "The drawer of basket {basket} is pulled out."
+    },
+    "panel_selected": {
+      "message": "A program was chosen for basket {basket} on the fryer. Start or cancel it on the fryer."
+    },
+    "basket_not_cooking": {
+      "message": "Basket {basket} is not cooking."
+    },
+    "basket_not_paused": {
+      "message": "Basket {basket} is not paused."
+    },
+    "basket_not_active": {
+      "message": "Basket {basket} has nothing to stop."
+    },
+    "nothing_cooking": {
+      "message": "No basket is cooking."
+    },
+    "nothing_paused": {
+      "message": "No basket is paused."
+    },
+    "nothing_active": {
+      "message": "No basket has anything to stop."
+    },
+    "basket_2_missing": {
+      "message": "Please choose a program for basket 2 (or use Match)."
     }
   },
   "services": {
@@ -311,19 +311,19 @@
     },
     "start_cook": {
       "name": "Start cooking",
-      "description": "Starts one or both zones of a dual-zone air fryer. Temperature and time default to the program's preset stored in the fryer.",
+      "description": "Starts one or both baskets of a dual-basket air fryer with the given values. Temperature and time default to the program's preset stored in the fryer.",
       "fields": {
         "device_id": {
           "name": "Air fryer",
           "description": "Leave empty if you have only one air fryer."
         },
-        "zone": {
-          "name": "Zone",
-          "description": "1 (top), 2 (bottom) or both zones."
+        "basket": {
+          "name": "Basket",
+          "description": "1 (top), 2 (bottom) or both baskets."
         },
         "program": {
           "name": "Program",
-          "description": "Cooking program (for both zones: zone 1)."
+          "description": "Cooking program (for both baskets: basket 1)."
         },
         "temperature": {
           "name": "Temperature",
@@ -333,83 +333,31 @@
           "name": "Time",
           "description": "Cooking time in minutes. Leave empty to use the program's preset."
         },
+        "send_only": {
+          "name": "Only send to fryer",
+          "description": "Send the program without starting it; start it with the button on the fryer."
+        },
         "mode": {
-          "name": "Mode for both zones",
-          "description": "Independent: each zone on its own time. Sync: both finish together. Match: zone 2 uses the values of zone 1."
+          "name": "Mode for both baskets",
+          "description": "Separate: each basket on its own time. Sync: both finish together. Match: basket 2 uses the values of basket 1."
         },
         "program_2": {
-          "name": "Program zone 2",
-          "description": "Only for independent or sync."
+          "name": "Program basket 2",
+          "description": "Only for separate or sync."
         },
         "temperature_2": {
-          "name": "Temperature zone 2",
+          "name": "Temperature basket 2",
           "description": "Leave empty to use the program's preset."
         },
         "duration_2": {
-          "name": "Time zone 2",
+          "name": "Time basket 2",
           "description": "Cooking time in minutes. Leave empty to use the program's preset."
-        },
-        "direct_start": {
-          "name": "Direct start",
-          "description": "Start cooking right away. Off: the program is only sent and you start it with the button on the fryer. Leave empty to use the switch setting."
         }
       },
       "sections": {
-        "zone_2": {
-          "name": "Both zones",
-          "description": "Only needed when starting both zones."
-        }
-      }
-    },
-    "stop": {
-      "name": "Stop cooking",
-      "description": "Ends cooking in one or all zones. When no zone is left, the fryer switches off.",
-      "fields": {
-        "device_id": {
-          "name": "Air fryer",
-          "description": "Leave empty if you have only one air fryer."
-        },
-        "zone": {
-          "name": "Zone",
-          "description": "Which zone: 1 (top), 2 (bottom) or all."
-        }
-      }
-    },
-    "pause": {
-      "name": "Pause",
-      "description": "Pauses cooking zones.",
-      "fields": {
-        "device_id": {
-          "name": "Air fryer",
-          "description": "Leave empty if you have only one air fryer."
-        },
-        "zone": {
-          "name": "Zone",
-          "description": "Which zone: 1 (top), 2 (bottom) or all."
-        }
-      }
-    },
-    "resume": {
-      "name": "Resume",
-      "description": "Resumes paused zones.",
-      "fields": {
-        "device_id": {
-          "name": "Air fryer",
-          "description": "Leave empty if you have only one air fryer."
-        },
-        "zone": {
-          "name": "Zone",
-          "description": "Which zone: 1 (top), 2 (bottom) or all."
-        }
-      }
-    },
-    "quit_sync": {
-      "name": "Leave sync",
-      "description": "Ends sync mode; a waiting zone starts right away.",
-      "fields": {
-        "device_id": {
-          "name": "Air fryer",
-          "description": "Leave empty if you have only one air fryer."
+        "basket_2": {
+          "name": "Both baskets",
+          "description": "Only needed when starting both baskets."
         }
       }
     },
@@ -462,25 +410,18 @@
         "proof": "Proof"
       }
     },
-    "start_zone": {
-      "options": {
-        "1": "Zone 1 (top)",
-        "2": "Zone 2 (bottom)",
-        "both": "Both zones"
-      }
-    },
     "start_mode": {
       "options": {
-        "independent": "Independent",
+        "separate": "Separate",
         "sync": "Sync (finish together)",
-        "match": "Match (zone 1 values)"
+        "match": "Match (basket 1 values for both)"
       }
     },
-    "action_zone": {
+    "start_basket": {
       "options": {
-        "1": "Zone 1 (top)",
-        "2": "Zone 2 (bottom)",
-        "all": "All zones"
+        "1": "Basket 1 (top)",
+        "2": "Basket 2 (bottom)",
+        "both": "Both baskets"
       }
     }
   }

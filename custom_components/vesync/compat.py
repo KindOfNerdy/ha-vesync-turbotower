@@ -15,6 +15,7 @@ from types import MappingProxyType
 from dataclasses import MISSING, fields
 
 from pyvesync import VeSync, device_map
+from pyvesync.devices.vesynckitchen import VeSyncDualAirFryer
 from pyvesync.const import AirFryerCookModes, AirFryerCookStatus, ConnectionStatus
 from pyvesync.device_container import DeviceContainer
 from pyvesync.models.vesync_models import RequestFirmwareModel, ResponseFirmwareModel
@@ -37,6 +38,7 @@ def apply() -> None:
     _applied = True
     _fix_unknown_device_logging()
     _fix_air_fryer_firmware()
+    _fix_standby_selection()
     for entry in device_map.air_fryer_modules:
         if any(t in entry.dev_types for t in TURBO_TOWER_TYPES):
             _fix_cook_end_status(entry)
@@ -137,3 +139,32 @@ def _fix_air_fryer_firmware() -> None:
 
     VeSync.check_firmware = check_firmware
     _LOGGER.debug("Applied air fryer firmware fix")
+
+
+def _fix_standby_selection() -> None:
+    """Keep the values of a program chosen on the control panel.
+
+    With the fryer on and a program chosen but not started, the cloud reports
+    ``standby`` with cookTemp/cookSetTime/mode set (device test "observe"); a
+    switched-off basket reports zeros. pyvesync 3.5.0 clears them, so HA can't
+    tell "chosen on the panel" from "off". Keep them on the standby state.
+    Candidate for a pyvesync PR.
+    """
+    original = VeSyncDualAirFryer._apply_chamber_status  # noqa: SLF001
+
+    def _apply_chamber_status(self, status_item):
+        chamber = original(self, status_item)
+        if (
+            chamber is not None
+            and status_item.cookStatus == AirFryerCookStatus.STANDBY.value
+            and status_item.cookSetTime
+        ):
+            state = self.get_chamber_state(chamber)
+            if state is not None and state.cook_set_time is None:
+                state.cook_set_time = self.convert_time_for_state(status_item.cookSetTime)
+                state.cook_set_temp = status_item.cookTemp or None
+                state.cook_mode = status_item.mode or state.cook_mode
+        return chamber
+
+    VeSyncDualAirFryer._apply_chamber_status = _apply_chamber_status  # noqa: SLF001
+    _LOGGER.debug("Applied standby selection fix")

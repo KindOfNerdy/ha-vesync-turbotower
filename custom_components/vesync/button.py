@@ -56,7 +56,7 @@ async def async_setup_entry(
     @callback
     def discover(devices: DeviceContainer) -> None:
         """Add a button entity for each supported device."""
-        # Turbo Tower fork: dual-zone fryer entities
+        # Turbo Tower fork: dual-basket fryer entities
         async_add_entities(fryer_entities.button_entities(devices, coordinator))
         async_add_entities(
             VeSyncButtonEntity(dev, description, coordinator)

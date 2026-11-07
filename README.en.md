@@ -2,39 +2,42 @@
 
 [Deutsch](README.md)
 
-Fork of the official Home Assistant **VeSync** integration that adds support for the **Cosori Turbo Tower Pro Smart** (CAF-DC111S-AEU / CAF-DC113S-ADE), a dual-zone air fryer.
+Fork of the official Home Assistant **VeSync** integration that adds support for the **Cosori Turbo Tower Pro Smart** (CAF-DC111S-AEU / CAF-DC113S-ADE), a dual-basket air fryer.
 
 > **Unofficial.** Replaces the built-in VeSync integration (same domain `vesync`). Your existing login and devices (e.g. purifiers) are kept. The goal is to upstream everything to [pyvesync](https://github.com/webdjoe/pyvesync) and Home Assistant Core, which will make this fork obsolete.
 
 ## Added
 
-- Status per zone (off, ready, cooking, paused, waiting, basket out, done)
-- Finish time per zone
-- Mode (separate, match, sync)
-- Faster polling while a zone is active
-- Program (dropdown), temperature and time per zone; values come from the device's presets
-- Start mode for both zones: separate, sync (finish together), match
-- "Direct start" (off by default): when off, the program is only sent and you start it on the fryer
-- Buttons: start zone, start both, stop zone, stop all, pause/resume per zone and for all
-- Events per zone for automations: ready, started, paused, resumed, basket out, finished, stopped
-- Firmware shown for the air fryer
+Built like the Core integrations for ovens (Home Connect, Miele) and on Core's per-basket model ([home-assistant/core#191014](https://github.com/home-assistant/core/pull/191014)), so it can move into Core later without big changes.
 
-- Actions (services) for recipes and automations:
-  - `vesync.start_cook` – one zone or both (independent, sync, match); empty values use the fryer's preset
-  - `vesync.stop`, `vesync.pause`, `vesync.resume` – zone 1, 2 or all
-  - `vesync.quit_sync` – leave sync
-  - `vesync.set_preset`, `vesync.reset_preset` – change/reset program presets in the fryer
+- Sensors per basket as in Core: cooking status, set temperature and time, current temperature, plus **finish time**
+- A program chosen on the fryer but not started stays visible (status "Standby" with its values)
+- Faster polling while a basket is active
+- Program (dropdown), temperature and time per basket; values come from the fryer's presets
+- Buttons per basket: **Start** (starts right away), **Send to fryer** (start with the button on the fryer), Pause, Resume, Stop
+- For both baskets: start mode (Separate, Sync = finish together, Match), Start both, Send both to fryer, Pause all, Resume all, Stop all, Leave Sync
+- Events per basket for automations: ready, started, paused, resumed, basket out, finished, stopped
+- Firmware shown for the air fryer
+- Actions for recipes:
+  - `vesync.start_cook` – one basket or both (separate, Sync, Match); empty values = fryer preset; `send_only: true` = only send to the fryer
+  - `vesync.set_preset`, `vesync.reset_preset` – change/reset the fryer's program presets
+
+Good to know: a program chosen on the control panel but not started can only be cancelled on the fryer – the cloud refuses to stop it. Anything sent from Home Assistant can be stopped.
 
 Example recipe script:
 
 ```yaml
 action: vesync.start_cook
 data:
-  zone: "1"
+  basket: "1"
   program: airfry
   temperature: 200
   duration: 18
 ```
+
+### Upgrading from 0.3.x
+
+Version 0.4.0 renames "zone" to "basket" and replaces entities: new entity IDs, the "Direct start" switch is gone (use the "Send to fryer" buttons), pause and resume are separate buttons, the actions `stop`, `pause`, `resume` and `quit_sync` are gone (use the buttons). In `start_cook`, `zone` is now `basket` and `direct_start` became `send_only`. Remove the old entities under *Settings → Devices* and update dashboards/automations.
 
 ## Fixes on top of pyvesync 3.5.0
 
@@ -44,6 +47,7 @@ Applied only while pyvesync still needs them:
 - Cook end (`cookEnd`) is recognized ([#590](https://github.com/webdjoe/pyvesync/pull/590))
 - Bake from 80 °C as in the manual ([#598](https://github.com/webdjoe/pyvesync/issues/598))
 - Air fryer firmware is checked too
+- A program chosen on the control panel but not started keeps its values (instead of looking like "off")
 
 ## Installation
 

@@ -49,23 +49,38 @@
             "reset_filter": {
                 "name": "Filter zurücksetzen"
             },
-            "zone_start": {
-                "name": "Zone {zone} starten"
+            "basket_start": {
+                "name": "Korb {basket} starten"
             },
-            "zone_stop": {
-                "name": "Zone {zone} stoppen"
+            "basket_send": {
+                "name": "Korb {basket} an Gerät senden"
             },
-            "zone_pause_resume": {
-                "name": "Zone {zone} Pause/Fortsetzen"
+            "basket_pause": {
+                "name": "Korb {basket} pausieren"
+            },
+            "basket_resume": {
+                "name": "Korb {basket} fortsetzen"
+            },
+            "basket_stop": {
+                "name": "Korb {basket} stoppen"
             },
             "start_both": {
-                "name": "Beide Zonen starten"
+                "name": "Beide Körbe starten"
+            },
+            "send_both": {
+                "name": "Beide Körbe an Gerät senden"
+            },
+            "pause_all": {
+                "name": "Alle pausieren"
+            },
+            "resume_all": {
+                "name": "Alle fortsetzen"
             },
             "stop_all": {
                 "name": "Alle stoppen"
             },
-            "pause_resume_all": {
-                "name": "Alle pausieren/fortsetzen"
+            "quit_sync": {
+                "name": "Sync beenden"
             }
         },
         "fan": {
@@ -99,11 +114,11 @@
             "mist_level": {
                 "name": "Nebelstufe"
             },
-            "zone_temperature": {
-                "name": "Zone {zone} Temperatur"
+            "basket_temperature": {
+                "name": "Korb {basket} Temperatur"
             },
-            "zone_time": {
-                "name": "Zone {zone} Zeit"
+            "basket_time": {
+                "name": "Korb {basket} Zeit"
             }
         },
         "select": {
@@ -116,8 +131,16 @@
                     "on": "Ein"
                 }
             },
-            "zone_program": {
-                "name": "Zone {zone} Programm",
+            "start_mode": {
+                "name": "Startmodus für beide Körbe",
+                "state": {
+                    "separate": "Unabhängig",
+                    "sync": "Sync (gemeinsames Ende)",
+                    "match": "Match (Werte von Korb 1 für beide)"
+                }
+            },
+            "basket_program": {
+                "name": "Korb {basket} Programm",
                 "state": {
                     "airfry": "Air Fry",
                     "bake": "Backen",
@@ -127,14 +150,6 @@
                     "dry": "Dörren",
                     "proof": "Gären"
                 }
-            },
-            "start_mode": {
-                "name": "Startmodus beide Zonen",
-                "state": {
-                    "separate": "Unabhängig",
-                    "sync": "Sync (gemeinsames Ende)",
-                    "match": "Match (Werte von Zone 1)"
-                }
             }
         },
         "sensor": {
@@ -142,13 +157,13 @@
                 "name": "Luftqualität"
             },
             "cook_set_temp": {
-                "name": "Eingestellte Kochtemperatur"
+                "name": "Korb {basket} eingestellte Kochtemperatur"
             },
             "cook_set_time": {
-                "name": "Eingestellte Kochzeit"
+                "name": "Korb {basket} eingestellte Kochzeit"
             },
             "cook_status": {
-                "name": "Kochstatus",
+                "name": "Korb {basket} Kochstatus",
                 "state": {
                     "cooking": "Kochen",
                     "cooking_end": "Kochen beendet",
@@ -157,14 +172,17 @@
                     "preheat_end": "Vorheizen abgeschlossen",
                     "preheat_stop": "Vorheizen gestoppt",
                     "pull_out": "Schublade herausgezogen",
-                    "standby": "Standby"
+                    "standby": "Standby",
+                    "ready": "Bereit",
+                    "hold": "Wartet",
+                    "appointing": "Geplant"
                 }
             },
             "current_power": {
                 "name": "Aktuelle Leistung"
             },
             "current_temp": {
-                "name": "Aktuelle Temperatur"
+                "name": "Korb {basket} aktuelle Temperatur"
             },
             "current_voltage": {
                 "name": "Aktuelle Spannung"
@@ -185,31 +203,10 @@
                 "name": "Restlebensdauer des Filters"
             },
             "preheat_set_time": {
-                "name": "Eingestellte Vorheizzeit"
+                "name": "Korb {basket} eingestellte Vorheizzeit"
             },
-            "zone_status": {
-                "name": "Zone {zone} Status",
-                "state": {
-                    "off": "Aus",
-                    "ready": "Bereit",
-                    "cooking": "Gart",
-                    "paused": "Pausiert",
-                    "waiting": "Wartet (Sync)",
-                    "basket_out": "Korb offen",
-                    "done": "Fertig"
-                }
-            },
-            "zone_end_time": {
-                "name": "Zone {zone} fertig um"
-            },
-            "fryer_mode": {
-                "name": "Modus",
-                "state": {
-                    "off": "Aus",
-                    "separate": "Unabhängig",
-                    "match": "Match",
-                    "sync": "Sync"
-                }
+            "cook_end_time": {
+                "name": "Korb {basket} fertig um"
             }
         },
         "switch": {
@@ -224,14 +221,11 @@
             },
             "drying_mode_power_off": {
                 "name": "Im ausgeschalteten Zustand Trocknungsmodus aktivieren"
-            },
-            "direct_start": {
-                "name": "Direktstart"
             }
         },
         "event": {
-            "zone_event": {
-                "name": "Zone {zone} Ereignis",
+            "basket_event": {
+                "name": "Korb {basket} Ereignis",
                 "state_attributes": {
                     "event_type": {
                         "state": {
@@ -258,18 +252,6 @@
         "server_error": {
             "message": "Beim Verbindungsaufbau zu VeSync ist ein Serverfehler aufgetreten."
         },
-        "zone_busy": {
-            "message": "Zone {zone} ist belegt. Werte ändern oder starten geht gerade nicht."
-        },
-        "fryer_busy": {
-            "message": "Eine Zone ist belegt. Erst stoppen, dann beide Zonen starten."
-        },
-        "zone_not_active": {
-            "message": "Zone {zone} gart gerade nicht."
-        },
-        "fryer_not_active": {
-            "message": "Keine Zone ist aktiv."
-        },
         "invalid_values": {
             "message": "Ungültige Werte: {details}"
         },
@@ -277,25 +259,46 @@
             "message": "Der Airfryer hat den Befehl {command} abgelehnt (Code {code})."
         },
         "no_fryer": {
-            "message": "Kein Zwei-Zonen-Airfryer gefunden."
+            "message": "Kein Airfryer mit zwei Körben gefunden."
         },
         "choose_fryer": {
             "message": "Es gibt mehrere Airfryer. Bitte einen auswählen."
         },
         "not_a_fryer": {
-            "message": "Das gewählte Gerät ist kein Zwei-Zonen-Airfryer."
-        },
-        "zone_2_missing": {
-            "message": "Bitte ein Programm für Zone 2 wählen (oder Match nutzen)."
-        },
-        "nothing_to_do": {
-            "message": "Keine Zone ist in einem passenden Zustand für diese Aktion."
+            "message": "Das gewählte Gerät ist kein Airfryer mit zwei Körben."
         },
         "not_in_sync": {
             "message": "Der Airfryer ist nicht im Sync-Modus."
         },
+        "basket_busy": {
+            "message": "Korb {basket} ist belegt. Werte ändern oder starten geht gerade nicht."
+        },
         "basket_out": {
-            "message": "Der Korb von Zone {zone} ist offen."
+            "message": "Die Schublade von Korb {basket} ist herausgezogen."
+        },
+        "panel_selected": {
+            "message": "Für Korb {basket} wurde am Gerät ein Programm gewählt. Bitte am Gerät starten oder abbrechen."
+        },
+        "basket_not_cooking": {
+            "message": "Korb {basket} gart gerade nicht."
+        },
+        "basket_not_paused": {
+            "message": "Korb {basket} ist nicht pausiert."
+        },
+        "basket_not_active": {
+            "message": "In Korb {basket} gibt es nichts zu stoppen."
+        },
+        "nothing_cooking": {
+            "message": "Kein Korb gart gerade."
+        },
+        "nothing_paused": {
+            "message": "Kein Korb ist pausiert."
+        },
+        "nothing_active": {
+            "message": "In keinem Korb gibt es etwas zu stoppen."
+        },
+        "basket_2_missing": {
+            "message": "Bitte ein Programm für Korb 2 wählen (oder Match nutzen)."
         }
     },
     "services": {
@@ -305,19 +308,19 @@
         },
         "start_cook": {
             "name": "Garen starten",
-            "description": "Startet eine oder beide Zonen eines Zwei-Zonen-Airfryers. Temperatur und Zeit kommen, wenn leer, aus dem Gerätestandard des Programms.",
+            "description": "Startet einen oder beide Körbe eines Airfryers mit zwei Körben mit den angegebenen Werten. Temperatur und Zeit kommen, wenn leer, aus dem Gerätestandard des Programms.",
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
                     "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
-                "zone": {
-                    "name": "Zone",
-                    "description": "1 (oben), 2 (unten) oder beide Zonen."
+                "basket": {
+                    "name": "Korb",
+                    "description": "1 (oben), 2 (unten) oder beide Körbe."
                 },
                 "program": {
                     "name": "Programm",
-                    "description": "Garprogramm (bei beiden Zonen: für Zone 1)."
+                    "description": "Garprogramm (bei beiden Körben: für Korb 1)."
                 },
                 "temperature": {
                     "name": "Temperatur",
@@ -327,83 +330,31 @@
                     "name": "Zeit",
                     "description": "Garzeit in Minuten. Leer lassen für den Gerätestandard des Programms."
                 },
+                "send_only": {
+                    "name": "Nur an Gerät senden",
+                    "description": "Programm nur senden und am Gerät mit der Start-Taste starten."
+                },
                 "mode": {
-                    "name": "Modus für beide Zonen",
-                    "description": "Unabhängig: jede Zone mit eigener Zeit. Sync: beide werden gleichzeitig fertig. Match: Zone 2 übernimmt die Werte von Zone 1."
+                    "name": "Modus für beide Körbe",
+                    "description": "Unabhängig: jeder Korb mit eigener Zeit. Sync: beide werden gleichzeitig fertig. Match: Korb 2 übernimmt die Werte von Korb 1."
                 },
                 "program_2": {
-                    "name": "Programm Zone 2",
+                    "name": "Programm Korb 2",
                     "description": "Nur bei Unabhängig oder Sync."
                 },
                 "temperature_2": {
-                    "name": "Temperatur Zone 2",
+                    "name": "Temperatur Korb 2",
                     "description": "Leer lassen für den Gerätestandard des Programms."
                 },
                 "duration_2": {
-                    "name": "Zeit Zone 2",
+                    "name": "Zeit Korb 2",
                     "description": "Garzeit in Minuten. Leer lassen für den Gerätestandard des Programms."
-                },
-                "direct_start": {
-                    "name": "Direktstart",
-                    "description": "Sofort losgaren. Aus: Das Programm wird nur gesendet und am Gerät mit der Start-Taste gestartet. Leer lassen für die Einstellung des Schalters."
                 }
             },
             "sections": {
-                "zone_2": {
-                    "name": "Beide Zonen",
-                    "description": "Nur nötig, wenn beide Zonen starten."
-                }
-            }
-        },
-        "stop": {
-            "name": "Garen beenden",
-            "description": "Beendet das Garen in einer oder allen Zonen. Ist keine Zone mehr aktiv, schaltet sich das Gerät aus.",
-            "fields": {
-                "device_id": {
-                    "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
-                },
-                "zone": {
-                    "name": "Zone",
-                    "description": "Welche Zone: 1 (oben), 2 (unten) oder alle."
-                }
-            }
-        },
-        "pause": {
-            "name": "Pausieren",
-            "description": "Pausiert garende Zonen.",
-            "fields": {
-                "device_id": {
-                    "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
-                },
-                "zone": {
-                    "name": "Zone",
-                    "description": "Welche Zone: 1 (oben), 2 (unten) oder alle."
-                }
-            }
-        },
-        "resume": {
-            "name": "Fortsetzen",
-            "description": "Setzt pausierte Zonen fort.",
-            "fields": {
-                "device_id": {
-                    "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
-                },
-                "zone": {
-                    "name": "Zone",
-                    "description": "Welche Zone: 1 (oben), 2 (unten) oder alle."
-                }
-            }
-        },
-        "quit_sync": {
-            "name": "Sync beenden",
-            "description": "Beendet den Sync-Modus; eine wartende Zone startet sofort.",
-            "fields": {
-                "device_id": {
-                    "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
+                "basket_2": {
+                    "name": "Beide Körbe",
+                    "description": "Nur nötig, wenn beide Körbe starten."
                 }
             }
         },
@@ -456,25 +407,18 @@
                 "proof": "Gären"
             }
         },
-        "start_zone": {
-            "options": {
-                "1": "Zone 1 (oben)",
-                "2": "Zone 2 (unten)",
-                "both": "Beide Zonen"
-            }
-        },
         "start_mode": {
             "options": {
-                "independent": "Unabhängig",
+                "separate": "Unabhängig",
                 "sync": "Sync (gemeinsames Ende)",
-                "match": "Match (Werte von Zone 1)"
+                "match": "Match (Werte von Korb 1 für beide)"
             }
         },
-        "action_zone": {
+        "start_basket": {
             "options": {
-                "1": "Zone 1 (oben)",
-                "2": "Zone 2 (unten)",
-                "all": "Alle Zonen"
+                "1": "Korb 1 (oben)",
+                "2": "Korb 2 (unten)",
+                "both": "Beide Körbe"
             }
         }
     }

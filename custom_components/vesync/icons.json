@@ -12,23 +12,38 @@
       "reset_filter": {
         "default": "mdi:air-filter"
       },
-      "zone_start": {
+      "basket_start": {
         "default": "mdi:play"
       },
-      "zone_stop": {
-        "default": "mdi:stop"
+      "basket_send": {
+        "default": "mdi:send"
       },
-      "zone_pause_resume": {
-        "default": "mdi:play-pause"
+      "basket_pause": {
+        "default": "mdi:pause"
+      },
+      "basket_resume": {
+        "default": "mdi:play"
+      },
+      "basket_stop": {
+        "default": "mdi:stop"
       },
       "start_both": {
         "default": "mdi:play-box-multiple"
       },
+      "send_both": {
+        "default": "mdi:send"
+      },
+      "pause_all": {
+        "default": "mdi:pause-circle"
+      },
+      "resume_all": {
+        "default": "mdi:play-circle"
+      },
       "stop_all": {
         "default": "mdi:stop-circle"
       },
-      "pause_resume_all": {
-        "default": "mdi:play-pause"
+      "quit_sync": {
+        "default": "mdi:sync-off"
       }
     },
     "fan": {
@@ -54,10 +69,10 @@
       "warm_mist_level": {
         "default": "mdi:heat-wave"
       },
-      "zone_temperature": {
+      "basket_temperature": {
         "default": "mdi:thermometer"
       },
-      "zone_time": {
+      "basket_time": {
         "default": "mdi:timer-outline"
       }
     },
@@ -73,32 +88,18 @@
       },
       "drying_mode_power_off": {
         "default": "mdi:weather-windy"
-      },
-      "direct_start": {
-        "default": "mdi:play-circle-outline"
       }
     },
     "sensor": {
-      "zone_status": {
-        "default": "mdi:toaster-oven",
-        "state": {
-          "cooking": "mdi:fire",
-          "paused": "mdi:pause-circle-outline",
-          "waiting": "mdi:timer-sand",
-          "basket_out": "mdi:tray-arrow-up",
-          "done": "mdi:check-circle-outline",
-          "ready": "mdi:gesture-tap-button"
-        }
-      },
-      "zone_end_time": {
+      "cook_end_time": {
         "default": "mdi:timer-check-outline"
-      },
-      "fryer_mode": {
-        "default": "mdi:sync"
       }
     },
     "select": {
-      "zone_program": {
+      "start_mode": {
+        "default": "mdi:sync"
+      },
+      "basket_program": {
         "default": "mdi:chef-hat",
         "state": {
           "airfry": "mdi:fan",
@@ -109,13 +110,10 @@
           "dry": "mdi:fruit-cherries",
           "proof": "mdi:bread-slice"
         }
-      },
-      "start_mode": {
-        "default": "mdi:sync"
       }
     },
     "event": {
-      "zone_event": {
+      "basket_event": {
         "default": "mdi:bell-ring-outline"
       }
     }
@@ -126,18 +124,6 @@
     },
     "start_cook": {
       "service": "mdi:play"
-    },
-    "stop": {
-      "service": "mdi:stop"
-    },
-    "pause": {
-      "service": "mdi:pause"
-    },
-    "resume": {
-      "service": "mdi:play-pause"
-    },
-    "quit_sync": {
-      "service": "mdi:sync-off"
     },
     "set_preset": {
       "service": "mdi:content-save-edit"
