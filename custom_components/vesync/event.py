@@ -92,6 +92,7 @@ class VeSyncFryerZoneEvent(VeSyncBaseEntity, EventEntity):
         self._last_status: str | None = zone_status(device, zone)
         self._last_values = zone_values(device, zone)
         self._expected_end: datetime | None = None
+        self._finished = False  # the current cook already reported finished
 
     @callback
     @override
@@ -106,6 +107,12 @@ class VeSyncFryerZoneEvent(VeSyncBaseEntity, EventEntity):
             and dt_util.utcnow() >= self._expected_end - FINISH_TOLERANCE
         ):
             event_type = "finished"
+        if event_type in ("ready", "started"):
+            self._finished = False
+        elif event_type == "finished":
+            self._finished = True
+        elif event_type == "stopped" and self._finished:
+            event_type = None  # switched off after it was done: not a cancel
         self._last_status = status
         state = self.device.get_chamber_state(self._zone)
         remaining = state.total_time_remaining if state else None

@@ -239,7 +239,7 @@
                             "started": "Gestartet",
                             "paused": "Pausiert",
                             "resumed": "Fortgesetzt",
-                            "basket_out": "Korb gezogen",
+                            "basket_out": "Korb geöffnet",
                             "finished": "Fertig",
                             "stopped": "Abgebrochen"
                         }
@@ -306,7 +306,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
                 "zone": {
                     "name": "Zone",
@@ -358,7 +358,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
                 "zone": {
                     "name": "Zone",
@@ -372,7 +372,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
                 "zone": {
                     "name": "Zone",
@@ -386,7 +386,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
                 "zone": {
                     "name": "Zone",
@@ -400,7 +400,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 }
             }
         },
@@ -410,7 +410,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
                 "program": {
                     "name": "Programm",
@@ -432,7 +432,7 @@
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
-                    "description": "Leer lassen, wenn du nur einen Turbo Tower hast."
+                    "description": "Leer lassen, wenn du nur einen Airfryer hast."
                 },
                 "program": {
                     "name": "Programm",

@@ -84,9 +84,18 @@ class FryerCommandError(Exception):
         self.code = code
 
 
+# Only the Turbo Tower Pro: programs, limits and commands were verified on it.
+# Other dual-chamber fryers (e.g. TwinFry) keep the standard behavior.
+TURBO_TOWER_TYPES = ("CAF-DC111S-AEU",)
+
+
 def is_dual_fryer(device: VeSyncBaseDevice) -> bool:
-    """Return True for dual-zone fryers handled by this module."""
-    return is_air_fryer(device) and bool(getattr(device, "is_dual_chamber", False))
+    """Return True for dual-zone fryers handled by this module (Turbo Tower)."""
+    return (
+        is_air_fryer(device)
+        and device.device_type in TURBO_TOWER_TYPES
+        and bool(getattr(device, "is_dual_chamber", False))
+    )
 
 
 def zone_status(device: VeSyncFryer, zone: AirFryerChamber) -> str | None:

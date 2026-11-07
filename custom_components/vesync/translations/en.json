@@ -245,7 +245,7 @@
               "started": "Started",
               "paused": "Paused",
               "resumed": "Resumed",
-              "basket_out": "Basket out",
+              "basket_out": "Basket opened",
               "finished": "Finished",
               "stopped": "Stopped"
             }
@@ -312,7 +312,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         },
         "zone": {
           "name": "Zone",
@@ -364,7 +364,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         },
         "zone": {
           "name": "Zone",
@@ -378,7 +378,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         },
         "zone": {
           "name": "Zone",
@@ -392,7 +392,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         },
         "zone": {
           "name": "Zone",
@@ -406,7 +406,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         }
       }
     },
@@ -416,7 +416,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         },
         "program": {
           "name": "Program",
@@ -438,7 +438,7 @@
       "fields": {
         "device_id": {
           "name": "Air fryer",
-          "description": "Leave empty if you have only one Turbo Tower."
+          "description": "Leave empty if you have only one air fryer."
         },
         "program": {
           "name": "Program",
