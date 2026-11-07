@@ -171,6 +171,8 @@ async def _start_cook(call: ServiceCall) -> None:
     ready = not data.get("direct_start", coordinator.fryer_form(dev.cid).direct_start)
 
     if zone in ("1", "2"):
+        if _status(dev, int(zone)) == "basket_out":
+            raise _validation("basket_out", zone=zone)
         if _status(dev, int(zone)) in BUSY_STATES:
             raise _validation("zone_busy", zone=zone)
         configs = [cook_config(dev, int(zone), *first)]

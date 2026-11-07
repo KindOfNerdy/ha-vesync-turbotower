@@ -30,6 +30,11 @@ ACTIVE = {"ready", "cooking", "paused", "waiting", "basket_out"}
 FINISH_TOLERANCE = timedelta(seconds=5)
 
 
+def status_in_cook(status: str | None) -> bool:
+    """Return True if the status belongs to a cook that is ready or running."""
+    return status in ("ready", "cooking", "paused", "waiting")
+
+
 def event_for(old: str | None, new: str | None) -> str | None:
     """Return the event type for a zone status change, if any."""
     if old is None or new is None or old == new:
@@ -93,6 +98,7 @@ class VeSyncFryerZoneEvent(VeSyncBaseEntity, EventEntity):
         self._last_values = zone_values(device, zone)
         self._expected_end: datetime | None = None
         self._finished = False  # the current cook already reported finished
+        self._in_cook = status_in_cook(zone_status(device, zone))  # a cook is ready/running
 
     @callback
     @override
@@ -107,12 +113,20 @@ class VeSyncFryerZoneEvent(VeSyncBaseEntity, EventEntity):
             and dt_util.utcnow() >= self._expected_end - FINISH_TOLERANCE
         ):
             event_type = "finished"
+        # Basket out only matters during a cook; an empty slot while idle is not news,
+        # and putting a basket back while idle is not a cancel.
+        if event_type == "basket_out" and self._last_status not in ("cooking", "paused", "waiting"):
+            event_type = None
+        if event_type == "stopped" and (self._finished or not self._in_cook):
+            event_type = None  # off after done, or nothing was cooking
         if event_type in ("ready", "started"):
             self._finished = False
         elif event_type == "finished":
             self._finished = True
-        elif event_type == "stopped" and self._finished:
-            event_type = None  # switched off after it was done: not a cancel
+        if status_in_cook(status):
+            self._in_cook = True
+        elif status in ("off", "done"):
+            self._in_cook = False
         self._last_status = status
         state = self.device.get_chamber_state(self._zone)
         remaining = state.total_time_remaining if state else None

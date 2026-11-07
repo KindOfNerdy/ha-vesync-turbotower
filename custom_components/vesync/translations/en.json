@@ -299,6 +299,9 @@
     },
     "not_in_sync": {
       "message": "The air fryer is not in sync mode."
+    },
+    "basket_out": {
+      "message": "The basket of zone {zone} is open."
     }
   },
   "services": {

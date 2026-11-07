@@ -293,6 +293,9 @@
         },
         "not_in_sync": {
             "message": "Der Airfryer ist nicht im Sync-Modus."
+        },
+        "basket_out": {
+            "message": "Der Korb von Zone {zone} ist offen."
         }
     },
     "services": {

@@ -112,6 +112,8 @@ class FryerEntity(VeSyncBaseEntity):
         return zone_form.program, zone_form.temperature, zone_form.minutes
 
     def _check_editable(self) -> None:
+        if self._status(self._zone) == "basket_out":
+            raise _error("basket_out", zone=str(self._zone))
         if self._busy():
             raise _error("zone_busy", zone=str(self._zone))
 
@@ -370,8 +372,7 @@ class FryerButton(FryerEntity, ButtonEntity):
         """Handle the button press."""
         ready = not self.form.direct_start
         if self._action == "start":
-            if self._busy():
-                raise _error("zone_busy", zone=str(self._zone))
+            self._check_editable()
             configs = [self._config(self._zone)]
             await self._run(lambda: start_cook(self.device, configs, ready_start=ready))
         elif self._action == "start_both":
