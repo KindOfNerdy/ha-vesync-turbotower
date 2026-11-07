@@ -26,6 +26,9 @@
       },
       "stop_all": {
         "default": "mdi:stop-circle"
+      },
+      "pause_resume_all": {
+        "default": "mdi:play-pause"
       }
     },
     "fan": {

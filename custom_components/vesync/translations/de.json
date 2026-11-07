@@ -63,6 +63,9 @@
             },
             "stop_all": {
                 "name": "Alle stoppen"
+            },
+            "pause_resume_all": {
+                "name": "Alle pausieren/fortsetzen"
             }
         },
         "fan": {
@@ -116,7 +119,7 @@
             "zone_program": {
                 "name": "Zone {zone} Programm",
                 "state": {
-                    "airfry": "Heißluft-Frittieren",
+                    "airfry": "Air Fry",
                     "bake": "Backen",
                     "roast": "Braten",
                     "grill": "Grillen",
@@ -128,7 +131,7 @@
             "start_mode": {
                 "name": "Startmodus beide Zonen",
                 "state": {
-                    "separate": "Getrennt",
+                    "separate": "Unabhängig",
                     "sync": "Sync (gemeinsames Ende)",
                     "match": "Match (Werte von Zone 1)"
                 }
@@ -203,7 +206,7 @@
                 "name": "Modus",
                 "state": {
                     "off": "Aus",
-                    "separate": "Getrennt",
+                    "separate": "Unabhängig",
                     "match": "Match",
                     "sync": "Sync"
                 }

@@ -393,6 +393,15 @@ class FryerButton(FryerEntity, ButtonEntity):
             if not zones:
                 raise _error("fryer_not_active")
             await self._run(*(lambda z=zone: end_zone(self.device, z) for zone in zones))
+        elif self._action == "pause_resume_all":
+            cooking = [int(z) for z in ZONES if self._status(int(z)) == "cooking"]
+            paused = [int(z) for z in ZONES if self._status(int(z)) == "paused"]
+            if cooking:
+                await self._run(*(lambda z=zone: pause_zone(self.device, z) for zone in cooking))
+            elif paused:
+                await self._run(*(lambda z=zone: resume_zone(self.device, z) for zone in paused))
+            else:
+                raise _error("fryer_not_active")
         elif self._action == "pause_resume":
             status = self._status(self._zone)
             if status == "cooking":  # pausing a waiting (Sync) zone is untested
@@ -416,5 +425,6 @@ def button_entities(devices, coordinator) -> list[ButtonEntity]:
         entities += [
             FryerButton(dev, coordinator, "start_both"),
             FryerButton(dev, coordinator, "stop_all"),
+            FryerButton(dev, coordinator, "pause_resume_all"),
         ]
     return entities

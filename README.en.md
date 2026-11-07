@@ -15,7 +15,7 @@ Fork of the official Home Assistant **VeSync** integration that adds support for
 - Program (dropdown), temperature and time per zone; values come from the device's presets
 - Start mode for both zones: separate, sync (finish together), match
 - "Confirm start on device" (on by default): the program is only sent, you start it on the fryer
-- Buttons: start zone, start both, stop zone, stop all, pause/resume
+- Buttons: start zone, start both, stop zone, stop all, pause/resume per zone and for all
 - Events per zone for automations: ready, started, paused, resumed, basket out, finished, stopped
 - Firmware shown for the air fryer
 
