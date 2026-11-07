@@ -7,12 +7,7 @@
     "appliances_cleaning.cooking"
   ],
   "codeowners": [
-    "@markperdue",
-    "@webdjoe",
-    "@thegardenmonkey",
-    "@cdnninja",
-    "@iprak",
-    "@sapuseven"
+    "@KindOfNerdy"
   ],
   "config_flow": true,
   "connectivity": [
@@ -33,5 +28,5 @@
   "requirements": [
     "pyvesync==3.5.0"
   ],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
