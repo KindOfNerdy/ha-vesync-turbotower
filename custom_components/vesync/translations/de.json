@@ -191,7 +191,7 @@
                 "name": "Zone {zone} Status",
                 "state": {
                     "off": "Aus",
-                    "ready": "Bereit (Start am Gerät)",
+                    "ready": "Bereit",
                     "cooking": "Gart",
                     "paused": "Pausiert",
                     "waiting": "Wartet (Sync)",
@@ -235,7 +235,7 @@
                 "state_attributes": {
                     "event_type": {
                         "state": {
-                            "ready": "Bereit (Start am Gerät)",
+                            "ready": "Bereit",
                             "started": "Gestartet",
                             "paused": "Pausiert",
                             "resumed": "Fortgesetzt",
