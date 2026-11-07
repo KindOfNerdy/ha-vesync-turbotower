@@ -12,8 +12,14 @@ Fork of the official Home Assistant **VeSync** integration that adds support for
 - Finish time per zone
 - Mode (separate, match, sync)
 - Faster polling while a zone is active
+- Program (dropdown), temperature and time per zone; values come from the device's presets
+- Start mode for both zones: separate, sync (finish together), match
+- "Confirm start on device" (on by default): the program is only sent, you start it on the fryer
+- Buttons: start zone, start both, stop zone, stop all, pause/resume
+- Events per zone for automations: ready, started, paused, resumed, basket out, finished, stopped
+- Firmware shown for the air fryer
 
-In progress: program, temperature and time per zone, start/stop/pause, services for recipes.
+In progress: services for recipes and automations.
 
 ## Fixes on top of pyvesync 3.5.0
 
@@ -22,6 +28,7 @@ Applied only while pyvesync still needs them:
 - Unsupported devices in the account no longer stop other devices from being discovered ([#589](https://github.com/webdjoe/pyvesync/pull/589))
 - Cook end (`cookEnd`) is recognized ([#590](https://github.com/webdjoe/pyvesync/pull/590))
 - Bake from 80 °C as in the manual ([#598](https://github.com/webdjoe/pyvesync/issues/598))
+- Air fryer firmware is checked too
 
 ## Installation
 

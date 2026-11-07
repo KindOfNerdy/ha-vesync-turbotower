@@ -11,6 +11,21 @@
     "button": {
       "reset_filter": {
         "default": "mdi:air-filter"
+      },
+      "zone_start": {
+        "default": "mdi:play"
+      },
+      "zone_stop": {
+        "default": "mdi:stop"
+      },
+      "zone_pause_resume": {
+        "default": "mdi:play-pause"
+      },
+      "start_both": {
+        "default": "mdi:play-box-multiple"
+      },
+      "stop_all": {
+        "default": "mdi:stop-circle"
       }
     },
     "fan": {
@@ -35,6 +50,12 @@
       },
       "warm_mist_level": {
         "default": "mdi:heat-wave"
+      },
+      "zone_temperature": {
+        "default": "mdi:thermometer"
+      },
+      "zone_time": {
+        "default": "mdi:timer-outline"
       }
     },
     "switch": {
@@ -49,6 +70,50 @@
       },
       "drying_mode_power_off": {
         "default": "mdi:weather-windy"
+      },
+      "confirm_on_device": {
+        "default": "mdi:gesture-tap-button"
+      }
+    },
+    "sensor": {
+      "zone_status": {
+        "default": "mdi:toaster-oven",
+        "state": {
+          "cooking": "mdi:fire",
+          "paused": "mdi:pause-circle-outline",
+          "waiting": "mdi:timer-sand",
+          "basket_out": "mdi:tray-arrow-up",
+          "done": "mdi:check-circle-outline",
+          "ready": "mdi:gesture-tap-button"
+        }
+      },
+      "zone_end_time": {
+        "default": "mdi:timer-check-outline"
+      },
+      "fryer_mode": {
+        "default": "mdi:sync"
+      }
+    },
+    "select": {
+      "zone_program": {
+        "default": "mdi:chef-hat",
+        "state": {
+          "airfry": "mdi:fan",
+          "bake": "mdi:cupcake",
+          "roast": "mdi:food-drumstick",
+          "grill": "mdi:grill",
+          "reheat": "mdi:pot-steam",
+          "dry": "mdi:fruit-cherries",
+          "proof": "mdi:bread-slice"
+        }
+      },
+      "start_mode": {
+        "default": "mdi:sync"
+      }
+    },
+    "event": {
+      "zone_event": {
+        "default": "mdi:bell-ring-outline"
       }
     }
   },

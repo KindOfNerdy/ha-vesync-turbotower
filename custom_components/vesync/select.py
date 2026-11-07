@@ -29,6 +29,7 @@ from .const import (
     VS_DISCOVERY,
 )
 from .coordinator import VesyncConfigEntry, VeSyncDataCoordinator
+from . import fryer_entities
 from .entity import VeSyncBaseEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -156,6 +157,8 @@ def _setup_entities(
     coordinator: VeSyncDataCoordinator,
 ) -> None:
     """Add select entities."""
+    # Turbo Tower fork: dual-zone fryer entities
+    async_add_entities(fryer_entities.select_entities(devices, coordinator))
 
     async_add_entities(
         VeSyncSelectEntity(dev, description, coordinator)

@@ -12,9 +12,13 @@ import inspect
 import logging
 from types import MappingProxyType
 
-from pyvesync import device_map
-from pyvesync.const import AirFryerCookModes, AirFryerCookStatus
+from dataclasses import MISSING, fields
+
+from pyvesync import VeSync, device_map
+from pyvesync.const import AirFryerCookModes, AirFryerCookStatus, ConnectionStatus
 from pyvesync.device_container import DeviceContainer
+from pyvesync.models.vesync_models import RequestFirmwareModel, ResponseFirmwareModel
+from pyvesync.utils.helpers import Helpers
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +36,7 @@ def apply() -> None:
         return
     _applied = True
     _fix_unknown_device_logging()
+    _fix_air_fryer_firmware()
     for entry in device_map.air_fryer_modules:
         if any(t in entry.dev_types for t in TURBO_TOWER_TYPES):
             _fix_cook_end_status(entry)
@@ -84,3 +89,51 @@ def _fix_bake_min_temp(entry: device_map.AirFryerMap) -> None:
         changes["temp_f"] = replace(bake.temp_f, min_temp=BAKE_MIN_TEMP_F)
     entry.cook_modes[AirFryerCookModes.BAKE] = replace(bake, **changes)
     _LOGGER.debug("Applied Bake minimum temperature fix (pyvesync #598)")
+
+
+def _fix_air_fryer_firmware() -> None:
+    """Also check firmware of air fryers.
+
+    pyvesync 3.5.0 leaves air fryers out of getFirmwareUpdateInfoList, so their
+    firmware shows as unknown. The endpoint answers fine for the CAF-DC111S-AEU
+    (main 2.0.02, MCU 1.0.10), so query air fryers in a second request.
+    """
+    original = VeSync.check_firmware
+    try:
+        source = inspect.getsource(original)
+    except (OSError, TypeError):
+        return
+    if "AIR_FRYER" not in source:
+        return
+
+    async def check_firmware(self: VeSync) -> bool:
+        result = await original(self)
+        cids = [
+            dev.cid
+            for dev in self.devices.air_fryers
+            if dev.state.connection_status == ConnectionStatus.ONLINE
+        ]
+        if not cids:
+            return result
+        names = tuple(
+            f.name
+            for f in fields(RequestFirmwareModel)
+            if f.default_factory is MISSING and f.default is MISSING
+        )
+        body = Helpers.get_manager_attributes(self, names)
+        body["cidList"] = cids
+        try:
+            resp, _ = await self.async_call_api(
+                "/cloud/v2/deviceManaged/getFirmwareUpdateInfoList",
+                "post",
+                json_object=RequestFirmwareModel(**body),
+            )
+            if resp and resp.get("code") == 0:
+                model = ResponseFirmwareModel.from_dict(resp)
+                self._update_fw_version(model.result.cidFwInfoList)  # noqa: SLF001
+        except Exception as err:  # noqa: BLE001 - never break setup for firmware info
+            _LOGGER.debug("Air fryer firmware check failed: %s", err)
+        return result
+
+    VeSync.check_firmware = check_firmware
+    _LOGGER.debug("Applied air fryer firmware fix")

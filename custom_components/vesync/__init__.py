@@ -30,6 +30,7 @@ compat.apply()
 PLATFORMS = [
     Platform.BINARY_SENSOR,
     Platform.BUTTON,
+    Platform.EVENT,
     Platform.FAN,
     Platform.HUMIDIFIER,
     Platform.LIGHT,

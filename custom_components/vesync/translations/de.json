@@ -48,6 +48,21 @@
         "button": {
             "reset_filter": {
                 "name": "Filter zurücksetzen"
+            },
+            "zone_start": {
+                "name": "Zone {zone} starten"
+            },
+            "zone_stop": {
+                "name": "Zone {zone} stoppen"
+            },
+            "zone_pause_resume": {
+                "name": "Zone {zone} Pause/Fortsetzen"
+            },
+            "start_both": {
+                "name": "Beide Zonen starten"
+            },
+            "stop_all": {
+                "name": "Alle stoppen"
             }
         },
         "fan": {
@@ -80,6 +95,12 @@
         "number": {
             "mist_level": {
                 "name": "Nebelstufe"
+            },
+            "zone_temperature": {
+                "name": "Zone {zone} Temperatur"
+            },
+            "zone_time": {
+                "name": "Zone {zone} Zeit"
             }
         },
         "select": {
@@ -90,6 +111,26 @@
                     "dim": "Gedimmt",
                     "off": "Aus",
                     "on": "Ein"
+                }
+            },
+            "zone_program": {
+                "name": "Zone {zone} Programm",
+                "state": {
+                    "airfry": "Heißluft-Frittieren",
+                    "bake": "Backen",
+                    "roast": "Braten",
+                    "grill": "Grillen",
+                    "reheat": "Aufwärmen",
+                    "dry": "Dörren",
+                    "proof": "Gären"
+                }
+            },
+            "start_mode": {
+                "name": "Startmodus beide Zonen",
+                "state": {
+                    "separate": "Getrennt",
+                    "sync": "Sync (gemeinsames Ende)",
+                    "match": "Match (Werte von Zone 1)"
                 }
             }
         },
@@ -180,6 +221,27 @@
             },
             "drying_mode_power_off": {
                 "name": "Im ausgeschalteten Zustand Trocknungsmodus aktivieren"
+            },
+            "confirm_on_device": {
+                "name": "Start am Gerät bestätigen"
+            }
+        },
+        "event": {
+            "zone_event": {
+                "name": "Zone {zone} Ereignis",
+                "state_attributes": {
+                    "event_type": {
+                        "state": {
+                            "ready": "Bereit (Start am Gerät)",
+                            "started": "Gestartet",
+                            "paused": "Pausiert",
+                            "resumed": "Fortgesetzt",
+                            "basket_out": "Korb gezogen",
+                            "finished": "Fertig",
+                            "stopped": "Abgebrochen"
+                        }
+                    }
+                }
             }
         }
     },
@@ -192,6 +254,24 @@
         },
         "server_error": {
             "message": "Beim Verbindungsaufbau zu VeSync ist ein Serverfehler aufgetreten."
+        },
+        "zone_busy": {
+            "message": "Zone {zone} ist belegt. Werte ändern oder starten geht gerade nicht."
+        },
+        "fryer_busy": {
+            "message": "Eine Zone ist belegt. Erst stoppen, dann beide Zonen starten."
+        },
+        "zone_not_active": {
+            "message": "Zone {zone} gart gerade nicht."
+        },
+        "fryer_not_active": {
+            "message": "Keine Zone ist aktiv."
+        },
+        "invalid_values": {
+            "message": "Ungültige Werte: {details}"
+        },
+        "command_failed": {
+            "message": "Der Airfryer hat den Befehl {command} abgelehnt (Code {code})."
         }
     },
     "services": {

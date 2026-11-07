@@ -22,6 +22,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .common import is_humidifier
 from .const import VS_DEVICES, VS_DISCOVERY
 from .coordinator import VesyncConfigEntry, VeSyncDataCoordinator
+from . import fryer_entities
 from .entity import VeSyncBaseEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -95,6 +96,8 @@ def _setup_entities(
     coordinator: VeSyncDataCoordinator,
 ) -> None:
     """Add number entities."""
+    # Turbo Tower fork: dual-zone fryer entities
+    async_add_entities(fryer_entities.number_entities(devices, coordinator))
 
     async_add_entities(
         VeSyncNumberEntity(dev, description, coordinator)

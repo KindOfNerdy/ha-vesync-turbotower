@@ -48,6 +48,21 @@
     "button": {
       "reset_filter": {
         "name": "Reset filter"
+      },
+      "zone_start": {
+        "name": "Start zone {zone}"
+      },
+      "zone_stop": {
+        "name": "Stop zone {zone}"
+      },
+      "zone_pause_resume": {
+        "name": "Pause/resume zone {zone}"
+      },
+      "start_both": {
+        "name": "Start both zones"
+      },
+      "stop_all": {
+        "name": "Stop all"
       }
     },
     "fan": {
@@ -83,6 +98,12 @@
       },
       "warm_mist_level": {
         "name": "Warm mist level"
+      },
+      "zone_temperature": {
+        "name": "Zone {zone} temperature"
+      },
+      "zone_time": {
+        "name": "Zone {zone} time"
       }
     },
     "select": {
@@ -93,6 +114,26 @@
           "dim": "Dim",
           "off": "[%key:common::state::off%]",
           "on": "[%key:common::state::on%]"
+        }
+      },
+      "zone_program": {
+        "name": "Zone {zone} program",
+        "state": {
+          "airfry": "Air Fry",
+          "bake": "Bake",
+          "roast": "Roast",
+          "grill": "Grill",
+          "reheat": "Reheat",
+          "dry": "Dehydrate",
+          "proof": "Proof"
+        }
+      },
+      "start_mode": {
+        "name": "Start mode both zones",
+        "state": {
+          "separate": "Separate",
+          "sync": "Sync (finish together)",
+          "match": "Match (zone 1 values for both)"
         }
       }
     },
@@ -186,6 +227,27 @@
       },
       "drying_mode_power_off": {
         "name": "Enable drying mode while power is off"
+      },
+      "confirm_on_device": {
+        "name": "Confirm start on device"
+      }
+    },
+    "event": {
+      "zone_event": {
+        "name": "Zone {zone} event",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ready": "Ready (press start on device)",
+              "started": "Started",
+              "paused": "Paused",
+              "resumed": "Resumed",
+              "basket_out": "Basket out",
+              "finished": "Finished",
+              "stopped": "Stopped"
+            }
+          }
+        }
       }
     }
   },
@@ -198,6 +260,24 @@
     },
     "server_error": {
       "message": "Server error occurred while connecting to VeSync"
+    },
+    "zone_busy": {
+      "message": "Zone {zone} is in use. Values can't be changed and it can't be started now."
+    },
+    "fryer_busy": {
+      "message": "A zone is in use. Stop it before starting both zones."
+    },
+    "zone_not_active": {
+      "message": "Zone {zone} is not cooking."
+    },
+    "fryer_not_active": {
+      "message": "No zone is active."
+    },
+    "invalid_values": {
+      "message": "Invalid values: {details}"
+    },
+    "command_failed": {
+      "message": "The air fryer refused the command {command} (code {code})."
     }
   },
   "services": {

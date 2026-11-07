@@ -235,3 +235,78 @@ async def update_preset(device: VeSyncFryer, preset: dict[str, Any]) -> None:
 async def reset_preset(device: VeSyncFryer, program: str) -> None:
     """Reset a device preset to its factory value."""
     await _call(device, "resetPresetRecipe", {"mode": program})
+
+
+# --- Form (values entered in HA before starting) ------------------------------
+
+PROGRAM_OPTIONS = [p.lower() for p in PROGRAMS]  # select option keys
+OPTION_TO_PROGRAM = {p.lower(): p for p in PROGRAMS}
+START_MODE_OPTIONS = ["separate", "sync", "match"]
+
+
+@dataclass
+class ZoneForm:
+    """Program, temperature (°C) and time (min) entered for one zone."""
+
+    program: str
+    temperature: int
+    minutes: int
+
+
+@dataclass
+class FryerForm:
+    """Form state of one fryer."""
+
+    zones: dict[int, ZoneForm]
+    start_mode: str = "separate"
+    confirm_on_device: bool = True
+    edited: bool = False  # True once the user changed a zone value
+
+
+def preset_values(presets: dict[str, dict] | None, program: str) -> tuple[int, int]:
+    """Return (temperature, minutes) for a program: device preset, else manual default."""
+    limits = PROGRAM_LIMITS[program]
+    preset = (presets or {}).get(program) or {}
+    temp = preset.get("cookTemp") if preset.get("tempUnit", "c") == "c" else None
+    secs = preset.get("cookSetTime")
+    temperature = clamp_temperature(program, temp if temp else limits.default_temp)
+    minutes = clamp_minutes(program, round(secs / 60) if secs else limits.default_time)
+    return temperature, minutes
+
+
+def clamp_temperature(program: str, value: float) -> int:
+    """Clamp and round a temperature to the program's limits."""
+    lim = PROGRAM_LIMITS[program]
+    value = round(value / lim.temp_step) * lim.temp_step
+    return int(min(max(value, lim.temp_min), lim.temp_max))
+
+
+def clamp_minutes(program: str, value: float) -> int:
+    """Clamp and round a time to the program's limits."""
+    lim = PROGRAM_LIMITS[program]
+    value = round(value / lim.time_step) * lim.time_step
+    return int(min(max(value, lim.time_min), lim.time_max))
+
+
+def validate(program: str, temperature: int, minutes: int) -> None:
+    """Raise ValueError if values are outside the program's limits."""
+    lim = PROGRAM_LIMITS[program]
+    if not lim.temp_min <= temperature <= lim.temp_max or temperature % lim.temp_step:
+        raise ValueError(
+            f"{program}: {temperature} °C outside {lim.temp_min}-{lim.temp_max} °C "
+            f"(step {lim.temp_step})"
+        )
+    if not lim.time_min <= minutes <= lim.time_max or minutes % lim.time_step:
+        raise ValueError(
+            f"{program}: {minutes} min outside {lim.time_min}-{lim.time_max} min "
+            f"(step {lim.time_step})"
+        )
+
+
+def new_form(presets: dict[str, dict] | None) -> FryerForm:
+    """Create a form with Air Fry and the device's defaults in both zones."""
+    zones = {}
+    for zone in ZONES:
+        temperature, minutes = preset_values(presets, "AirFry")
+        zones[int(zone)] = ZoneForm("AirFry", temperature, minutes)
+    return FryerForm(zones=zones)

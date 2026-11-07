@@ -12,8 +12,14 @@ Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung f�
 - „Fertig um“ je Zone
 - Modus (Getrennt, Match, Sync)
 - Schnellere Abfrage, solange eine Zone aktiv ist
+- Programm (Auswahlliste), Temperatur und Zeit je Zone; Werte kommen aus den Standards des Geräts
+- Startmodus für beide Zonen: Getrennt, Sync (gemeinsames Ende), Match
+- „Start am Gerät bestätigen“ (Standard an): Programm wird nur gesendet, gestartet wird am Gerät
+- Buttons: Zone starten, beide starten, Zone stoppen, alle stoppen, Pause/Fortsetzen
+- Ereignisse je Zone für Automationen: bereit, gestartet, pausiert, fortgesetzt, Korb gezogen, fertig, abgebrochen
+- Firmware-Anzeige für den Airfryer
 
-In Arbeit: Programmauswahl, Temperatur und Zeit je Zone, Start/Stopp/Pause, Services für Rezepte.
+In Arbeit: Services für Rezepte und Automationen.
 
 ## Korrekturen gegenüber pyvesync 3.5.0
 
@@ -22,6 +28,7 @@ Werden nur angewendet, solange pyvesync sie noch braucht:
 - Nicht unterstützte Geräte im Konto verhindern nicht mehr, dass andere Geräte erkannt werden ([#589](https://github.com/webdjoe/pyvesync/pull/589))
 - Garende (`cookEnd`) wird erkannt ([#590](https://github.com/webdjoe/pyvesync/pull/590))
 - Backen ab 80 °C wie in der Anleitung ([#598](https://github.com/webdjoe/pyvesync/issues/598))
+- Firmware des Airfryers wird mit abgefragt
 
 ## Installation
 

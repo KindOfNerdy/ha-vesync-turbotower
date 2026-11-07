@@ -15,9 +15,11 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .const import UPDATE_INTERVAL, UPDATE_INTERVAL_ENERGY
 from .fryer import (
     FryerCommandError,
+    FryerForm,
     any_zone_active,
     get_presets,
     is_dual_fryer,
+    new_form,
     reported_sync_type,
 )
 
@@ -45,6 +47,7 @@ class VeSyncDataCoordinator(DataUpdateCoordinator[None]):
         # Per fryer (cid): syncType of the last poll and the device presets.
         self.fryer_sync_type: dict[str, int | None] = {}
         self.fryer_presets: dict[str, dict[str, dict]] = {}
+        self.fryer_forms: dict[str, FryerForm] = {}
 
         super().__init__(
             hass,
@@ -76,6 +79,12 @@ class VeSyncDataCoordinator(DataUpdateCoordinator[None]):
 
         await self._async_update_fryers()
 
+    def fryer_form(self, cid: str) -> FryerForm:
+        """Return the form of a fryer, created with the device defaults."""
+        if cid not in self.fryer_forms:
+            self.fryer_forms[cid] = new_form(self.fryer_presets.get(cid))
+        return self.fryer_forms[cid]
+
     async def _async_update_fryers(self) -> None:
         """Track fryer sync type, presets and polling speed."""
         fryers = [dev for dev in self.manager.devices.air_fryers if is_dual_fryer(dev)]
@@ -90,6 +99,10 @@ class VeSyncDataCoordinator(DataUpdateCoordinator[None]):
             for fryer in fryers:
                 try:
                     self.fryer_presets[fryer.cid] = await get_presets(fryer)
+                    form = self.fryer_forms.get(fryer.cid)
+                    if form is not None and not form.edited:
+                        fresh = new_form(self.fryer_presets[fryer.cid])
+                        form.zones = fresh.zones
                 except (FryerCommandError, VeSyncError) as err:
                     _LOGGER.warning("Could not read presets of %s: %s", fryer.device_name, err)
 

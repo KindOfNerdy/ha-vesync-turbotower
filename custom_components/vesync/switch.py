@@ -23,6 +23,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .common import is_humidifier, is_outlet, is_wall_switch, rgetattr
 from .const import VS_DEVICES, VS_DISCOVERY
 from .coordinator import VesyncConfigEntry, VeSyncDataCoordinator
+from . import fryer_entities
 from .entity import VeSyncBaseEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -170,6 +171,8 @@ def _setup_entities(
     coordinator: VeSyncDataCoordinator,
 ) -> None:
     """Check if device is online and add entity."""
+    # Turbo Tower fork: dual-zone fryer entities
+    async_add_entities(fryer_entities.switch_entities(devices, coordinator))
     async_add_entities(
         VeSyncSwitchEntity(dev, description, coordinator)
         for dev in devices
