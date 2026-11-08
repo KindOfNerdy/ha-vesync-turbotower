@@ -39,14 +39,12 @@ data:
 
 Version 0.4.0 benennt „Zone“ in „Korb“ um und ersetzt Entitäten: neue Entity-IDs, der Schalter „Direktstart“ entfällt (dafür die Buttons „An Gerät senden“), Pause/Fortsetzen sind getrennte Buttons, die Aktionen `stop`, `pause`, `resume` und `quit_sync` entfallen (Buttons nutzen). In `start_cook` heißt `zone` jetzt `basket`, `direct_start` wird zu `send_only`. Alte Entitäten unter *Einstellungen → Geräte* entfernen und Dashboards/Automationen anpassen.
 
-## Korrekturen gegenüber pyvesync 3.5.0
+## Korrekturen gegenüber pyvesync 3.5.1
 
-Werden nur angewendet, solange pyvesync sie noch braucht:
+Basiert auf pyvesync 3.5.1 (enthält inzwischen Pause/Fortsetzen, Sync/Match, `cookEnd` und die Absturz-Korrektur aus unseren Beiträgen). Nur noch angewendet, solange pyvesync sie braucht:
 
-- Nicht unterstützte Geräte im Konto verhindern nicht mehr, dass andere Geräte erkannt werden ([#589](https://github.com/webdjoe/pyvesync/pull/589))
-- Garende (`cookEnd`) wird erkannt ([#590](https://github.com/webdjoe/pyvesync/pull/590))
 - Backen ab 80 °C wie in der Anleitung ([#598](https://github.com/webdjoe/pyvesync/issues/598))
-- Firmware des Airfryers wird mit abgefragt
+- Firmware des Airfryers wird mit abgefragt ([#601](https://github.com/webdjoe/pyvesync/pull/601))
 - Am Bedienfeld gewähltes, nicht gestartetes Programm behält seine Werte (statt wie „Aus“ auszusehen)
 
 ## Installation

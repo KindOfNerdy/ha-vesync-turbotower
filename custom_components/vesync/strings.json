@@ -302,6 +302,9 @@
     },
     "basket_2_missing": {
       "message": "Please choose a program for basket 2 (or use Match)."
+    },
+    "command_not_accepted": {
+      "message": "The air fryer did not accept the command {command}. Details are in the log."
     }
   },
   "services": {

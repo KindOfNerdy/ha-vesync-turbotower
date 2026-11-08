@@ -26,7 +26,7 @@
   ],
   "quality_scale": "bronze",
   "requirements": [
-    "pyvesync==3.5.0"
+    "pyvesync==3.5.1"
   ],
-  "version": "0.4.0"
+  "version": "0.4.1"
 }

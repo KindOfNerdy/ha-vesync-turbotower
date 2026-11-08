@@ -39,14 +39,12 @@ data:
 
 Version 0.4.0 renames "zone" to "basket" and replaces entities: new entity IDs, the "Direct start" switch is gone (use the "Send to fryer" buttons), pause and resume are separate buttons, the actions `stop`, `pause`, `resume` and `quit_sync` are gone (use the buttons). In `start_cook`, `zone` is now `basket` and `direct_start` became `send_only`. Remove the old entities under *Settings → Devices* and update dashboards/automations.
 
-## Fixes on top of pyvesync 3.5.0
+## Fixes on top of pyvesync 3.5.1
 
-Applied only while pyvesync still needs them:
+Based on pyvesync 3.5.1 (which now includes pause/resume, Sync/Match, `cookEnd` and the crash fix from our contributions). Only applied while pyvesync still needs them:
 
-- Unsupported devices in the account no longer stop other devices from being discovered ([#589](https://github.com/webdjoe/pyvesync/pull/589))
-- Cook end (`cookEnd`) is recognized ([#590](https://github.com/webdjoe/pyvesync/pull/590))
 - Bake from 80 °C as in the manual ([#598](https://github.com/webdjoe/pyvesync/issues/598))
-- Air fryer firmware is checked too
+- Air fryer firmware is checked too ([#601](https://github.com/webdjoe/pyvesync/pull/601))
 - A program chosen on the control panel but not started keeps its values (instead of looking like "off")
 
 ## Installation

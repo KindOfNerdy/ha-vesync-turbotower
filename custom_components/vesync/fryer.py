@@ -75,7 +75,7 @@ RECIPE_TYPE = 3  # sent by the app for preset programs
 class FryerCommandError(Exception):
     """A fryer command was refused by the cloud."""
 
-    def __init__(self, method: str, code: Any) -> None:
+    def __init__(self, method: str, code: Any = None) -> None:
         """Initialize."""
         super().__init__(f"{method} refused (code {code})")
         self.method = method
@@ -236,40 +236,35 @@ async def start_cook(
     )
 
 
-BOTH_BASKETS = 4  # chamber value for both baskets (endCook/pauseWork/resumeWork)
+async def _chamber_command(
+    device: VeSyncFryer, method: str, name: str, baskets: list[int]
+) -> None:
+    """Run a pyvesync chamber command (end, stop, resume) for one or both baskets.
 
-
-async def _send(device: VeSyncFryer, method: str, baskets: list[int]) -> None:
-    """Send a command for one basket, or once for both; fall back to one per basket.
-
-    One request with chamber 4 works while both baskets run (device tests
-    "endboth", "pauseall"); after a dissolved Sync the cloud refuses it
-    (11920000), so then each basket is sent on its own.
+    Both baskets go in one request; after a dissolved Sync the cloud refuses that
+    (11920000, device test "endboth"), so then each basket is sent on its own.
     """
-    if len(baskets) == 2:
-        try:
-            await _call(device, method, {"chamber": BOTH_BASKETS})
-        except FryerCommandError:
-            pass
-        else:
-            return
+    command = getattr(device, method)
+    if len(baskets) == 2 and await command(AirFryerChamber.BOTH):
+        return
     for basket in baskets:
-        await _call(device, method, {"chamber": basket})
+        if not await command(AirFryerChamber(basket)):
+            raise FryerCommandError(name, getattr(device.last_response, "code", None))
 
 
 async def end_baskets(device: VeSyncFryer, baskets: list[int]) -> None:
     """End the given baskets."""
-    await _send(device, "endCook", baskets)
+    await _chamber_command(device, "end", "endCook", baskets)
 
 
 async def pause_baskets(device: VeSyncFryer, baskets: list[int]) -> None:
     """Pause the given baskets."""
-    await _send(device, "pauseWork", baskets)
+    await _chamber_command(device, "stop", "pauseWork", baskets)
 
 
 async def resume_baskets(device: VeSyncFryer, baskets: list[int]) -> None:
     """Resume the given baskets."""
-    await _send(device, "resumeWork", baskets)
+    await _chamber_command(device, "resume", "resumeWork", baskets)
 
 
 async def quit_sync(device: VeSyncFryer) -> None:

@@ -299,6 +299,9 @@
         },
         "basket_2_missing": {
             "message": "Bitte ein Programm für Korb 2 wählen (oder Match nutzen)."
+        },
+        "command_not_accepted": {
+            "message": "Der Airfryer hat den Befehl {command} nicht angenommen. Details stehen im Protokoll."
         }
     },
     "services": {

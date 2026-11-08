@@ -91,7 +91,7 @@ async def run_commands(
     except FryerCommandError as err:
         raise HomeAssistantError(
             translation_domain=DOMAIN,
-            translation_key="command_failed",
+            translation_key="command_failed" if err.code is not None else "command_not_accepted",
             translation_placeholders={"command": err.method, "code": str(err.code)},
         ) from err
     except VeSyncError as err:

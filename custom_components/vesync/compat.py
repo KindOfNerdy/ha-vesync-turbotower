@@ -1,4 +1,4 @@
-"""Runtime fixes for pyvesync 3.5.0 (Turbo Tower fork).
+"""Runtime fixes for pyvesync 3.5.1 (Turbo Tower fork).
 
 Each fix checks whether it is still needed and does nothing otherwise, so a
 newer pyvesync that fixes the problem upstream (possibly differently) is left
@@ -10,14 +10,12 @@ from __future__ import annotations
 from dataclasses import replace
 import inspect
 import logging
-from types import MappingProxyType
 
 from dataclasses import MISSING, fields
 
 from pyvesync import VeSync, device_map
 from pyvesync.devices.vesynckitchen import VeSyncDualAirFryer
 from pyvesync.const import AirFryerCookModes, AirFryerCookStatus, ConnectionStatus
-from pyvesync.device_container import DeviceContainer
 from pyvesync.models.vesync_models import RequestFirmwareModel, ResponseFirmwareModel
 from pyvesync.utils.helpers import Helpers
 
@@ -36,49 +34,11 @@ def apply() -> None:
     if _applied:
         return
     _applied = True
-    _fix_unknown_device_logging()
     _fix_air_fryer_firmware()
     _fix_standby_selection()
     for entry in device_map.air_fryer_modules:
         if any(t in entry.dev_types for t in TURBO_TOWER_TYPES):
-            _fix_cook_end_status(entry)
             _fix_bake_min_temp(entry)
-
-
-def _fix_unknown_device_logging() -> None:
-    """Unknown devices crash get_devices() (pyvesync PR #589).
-
-    3.5.0 logs ``device.to_json(indent=True)`` for unmapped device types; the
-    argument is evaluated even with debug logging off and raises TypeError with
-    mashumaro >= 3.23. That aborts discovery, so supported devices listed after
-    the unknown one (here: the Core300S purifier after the CRC-R501) are lost.
-    """
-    original = DeviceContainer._build_device_instance  # noqa: SLF001
-    try:
-        source = inspect.getsource(original)
-    except (OSError, TypeError):
-        return
-    if "to_json(indent=True)" not in source:
-        return
-
-    def _build_device_instance(self, device, manager):
-        if device_map.get_device_config(device.deviceType) is None:
-            _LOGGER.debug("Device type %s not supported by pyvesync", device.deviceType)
-            return None
-        return original(self, device, manager)
-
-    DeviceContainer._build_device_instance = _build_device_instance  # noqa: SLF001
-    _LOGGER.debug("Applied fix for unknown device logging (pyvesync #589)")
-
-
-def _fix_cook_end_status(entry: device_map.AirFryerMap) -> None:
-    """Map ``cookEnd`` (pyvesync PR #590); otherwise a finished zone keeps showing cooking."""
-    if "cookEnd" in entry.status_map:
-        return
-    entry.status_map = MappingProxyType(
-        {**entry.status_map, "cookEnd": AirFryerCookStatus.COOK_END}
-    )
-    _LOGGER.debug("Applied cookEnd status fix (pyvesync #590)")
 
 
 def _fix_bake_min_temp(entry: device_map.AirFryerMap) -> None:
