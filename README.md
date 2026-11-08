@@ -35,6 +35,10 @@ data:
   duration: 18
 ```
 
+### Karte und Rezepte
+
+Für ein fertiges Dashboard gibt es eine eigene Karte, die [VeSync Air Fryer Card](https://github.com/KindOfNerdy/vesync-airfryer-card): Status, Bedienung beider Körbe und Rezeptliste in einer Karte, installierbar über den Marketplace. Im selben Repository liegt ein Skript-Blueprint („Turbo Tower recipe“), der Rezepte wie das Beispiel oben ohne YAML anlegt.
+
 ### Umstieg von 0.3.x
 
 Version 0.4.0 benennt „Zone“ in „Korb“ um und ersetzt Entitäten: neue Entity-IDs, der Schalter „Direktstart“ entfällt (dafür die Buttons „An Gerät senden“), Pause/Fortsetzen sind getrennte Buttons, die Aktionen `stop`, `pause`, `resume` und `quit_sync` entfallen (Buttons nutzen). In `start_cook` heißt `zone` jetzt `basket`, `direct_start` wird zu `send_only`. Alte Entitäten unter *Einstellungen → Geräte* entfernen und Dashboards/Automationen anpassen.

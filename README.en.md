@@ -35,6 +35,10 @@ data:
   duration: 18
 ```
 
+### Card and recipes
+
+For a ready-made dashboard there is a separate card, [VeSync Air Fryer Card](https://github.com/KindOfNerdy/vesync-airfryer-card): status, controls for both baskets and a recipe list in one card, installable from the Marketplace. The same repository has a script blueprint ("Turbo Tower recipe") that creates recipes like the example above without writing YAML.
+
 ### Upgrading from 0.3.x
 
 Version 0.4.0 renames "zone" to "basket" and replaces entities: new entity IDs, the "Direct start" switch is gone (use the "Send to fryer" buttons), pause and resume are separate buttons, the actions `stop`, `pause`, `resume` and `quit_sync` are gone (use the buttons). In `start_cook`, `zone` is now `basket` and `direct_start` became `send_only`. Remove the old entities under *Settings → Devices* and update dashboards/automations.
