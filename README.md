@@ -6,6 +6,13 @@ Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung f�
 
 > **Inoffiziell.** Ersetzt die eingebaute VeSync-Integration (gleiche Domain `vesync`). Bestehende Anmeldung und Geräte (z. B. Luftreiniger) bleiben erhalten. Ziel ist, alles über [pyvesync](https://github.com/webdjoe/pyvesync) und Home Assistant Core zurückzugeben – dann wird dieser Fork überflüssig.
 
+## Sicherheit
+
+> [!WARNING]
+> **Fernstart auf eigene Gefahr.** *Starten* und `vesync.start_cook` heizen sofort los, ohne dass jemand am Gerät ist. In der EU verlangt die VeSync-App, den Garvorgang mit der Start/Pause-Taste am Gerät zu starten (IEC/EN 60335-1, IEC/EN 60335-2-9). Dafür gibt es *An Gerät senden* (`send_only: true`): Die Einstellungen werden übertragen, gestartet wird mit der Taste am Gerät. Das Gerät beim Garen nie unbeaufsichtigt lassen.
+>
+> Die Integration wird ohne Gewährleistung und Haftung bereitgestellt, siehe [Lizenz](LICENSE).
+
 ## Was dazukommt
 
 Aufgebaut wie die Core-Integrationen für Backöfen (Home Connect, Miele) und auf dem Core-Modell „je Korb“ ([home-assistant/core#191014](https://github.com/home-assistant/core/pull/191014)), damit es später ohne große Änderungen in Core passt.

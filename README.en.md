@@ -6,6 +6,13 @@ Fork of the official Home Assistant **VeSync** integration that adds support for
 
 > **Unofficial.** Replaces the built-in VeSync integration (same domain `vesync`). Your existing login and devices (e.g. purifiers) are kept. The goal is to upstream everything to [pyvesync](https://github.com/webdjoe/pyvesync) and Home Assistant Core, which will make this fork obsolete.
 
+## Safety
+
+> [!WARNING]
+> **Remote start is at your own risk.** *Start* and `vesync.start_cook` start heating immediately, without anyone at the appliance. In the EU, the VeSync app asks you to start cooking with the Start/Pause button on the appliance (IEC/EN 60335-1, IEC/EN 60335-2-9). To do that, use *Send to appliance* (`send_only: true`): the settings are transferred, and cooking starts when you press the button. Never leave the appliance unattended while cooking.
+>
+> This integration is provided as is, without warranty or liability, as stated in the [license](LICENSE).
+
 ## Added
 
 Built like the Core integrations for ovens (Home Connect, Miele) and on Core's per-basket model ([home-assistant/core#191014](https://github.com/home-assistant/core/pull/191014)), so it can move into Core later without big changes.

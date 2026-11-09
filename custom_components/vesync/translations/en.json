@@ -314,7 +314,7 @@
     },
     "start_cook": {
       "name": "Start cooking",
-      "description": "Starts one or both baskets of a dual-basket air fryer with the given values. Temperature and time default to the program's preset stored in the fryer.",
+      "description": "Starts one or both baskets of a dual-basket air fryer with the given values. Temperature and time default to the program's preset stored in the fryer. Caution: the appliance heats up right away (unless send only is set).",
       "fields": {
         "device_id": {
           "name": "Air fryer",
