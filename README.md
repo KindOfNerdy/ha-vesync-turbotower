@@ -9,7 +9,7 @@ Fork of the official Home Assistant **VeSync** integration that adds support for
 ## Safety
 
 > [!WARNING]
-> **Remote start is at your own risk.** *Start* and `vesync.start_cook` start heating immediately, without anyone at the appliance. In the EU, the VeSync app asks you to start cooking with the Start/Pause button on the appliance (IEC/EN 60335-1, IEC/EN 60335-2-9). To do that, use *Send to appliance* (`send_only: true`): the settings are transferred, and cooking starts when you press the button. Never leave the appliance unattended while cooking.
+> **Remote start is at your own risk.** *Start* and `vesync.start_cook` start heating immediately, without anyone at the appliance. In the EU, the VeSync app asks you to start cooking with the Start/Pause button on the appliance (IEC/EN 60335-1, IEC/EN 60335-2-9). To do that, use *Send to appliance* (`send_only: true`): the settings are transferred, and cooking starts when you press the button. The *Start* and *Start both* buttons are therefore disabled after installation; enable them under the device's entities if you want to start remotely. Never leave the appliance unattended while cooking.
 >
 > This integration is provided as is, without warranty or liability, as stated in the [license](LICENSE).
 
@@ -21,7 +21,7 @@ Built like the Core integrations for ovens (Home Connect, Miele) and on Core's p
 - A program chosen on the fryer but not started stays visible (status "Standby" with its values)
 - Faster polling while a basket is active
 - Program (dropdown), temperature and time per basket; values come from the fryer's presets
-- Buttons per basket: **Start** (starts right away), **Send to fryer** (start with the button on the fryer), Pause, Resume, Stop
+- Buttons per basket: **Start** (starts right away, disabled by default), **Send to fryer** (start with the button on the fryer), Pause, Resume, Stop
 - For both baskets: start mode (Separate, Sync = finish together, Match), Start both, Send both to fryer, Pause all, Resume all, Stop all, Leave Sync
 - Events per basket for automations: ready, started, paused, resumed, basket out, finished, stopped
 - Firmware shown for the air fryer

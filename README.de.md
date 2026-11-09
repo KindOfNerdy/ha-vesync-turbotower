@@ -9,7 +9,7 @@ Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung f�
 ## Sicherheit
 
 > [!WARNING]
-> **Fernstart auf eigene Gefahr.** *Starten* und `vesync.start_cook` heizen sofort los, ohne dass jemand am Gerät ist. In der EU verlangt die VeSync-App, den Garvorgang mit der Start/Pause-Taste am Gerät zu starten (IEC/EN 60335-1, IEC/EN 60335-2-9). Dafür gibt es *An Gerät senden* (`send_only: true`): Die Einstellungen werden übertragen, gestartet wird mit der Taste am Gerät. Das Gerät beim Garen nie unbeaufsichtigt lassen.
+> **Fernstart auf eigene Gefahr.** *Starten* und `vesync.start_cook` heizen sofort los, ohne dass jemand am Gerät ist. In der EU verlangt die VeSync-App, den Garvorgang mit der Start/Pause-Taste am Gerät zu starten (IEC/EN 60335-1, IEC/EN 60335-2-9). Dafür gibt es *An Gerät senden* (`send_only: true`): Die Einstellungen werden übertragen, gestartet wird mit der Taste am Gerät. Die Buttons *Starten* und *Beide starten* sind deshalb nach der Installation deaktiviert; wer aus der Ferne starten will, aktiviert sie unter den Entitäten des Geräts. Das Gerät beim Garen nie unbeaufsichtigt lassen.
 >
 > Die Integration wird ohne Gewährleistung und Haftung bereitgestellt, siehe [Lizenz](LICENSE).
 
@@ -21,7 +21,7 @@ Aufgebaut wie die Core-Integrationen für Backöfen (Home Connect, Miele) und au
 - Ein am Gerät gewähltes, noch nicht gestartetes Programm bleibt sichtbar (Status „Standby“ mit Werten)
 - Schnellere Abfrage, solange ein Korb aktiv ist
 - Programm (Auswahlliste), Temperatur und Zeit je Korb; Werte kommen aus den Standards des Geräts
-- Buttons je Korb: **Starten** (legt sofort los), **An Gerät senden** (Start mit der Taste am Gerät), Pausieren, Fortsetzen, Stoppen
+- Buttons je Korb: **Starten** (legt sofort los, standardmäßig deaktiviert), **An Gerät senden** (Start mit der Taste am Gerät), Pausieren, Fortsetzen, Stoppen
 - Für beide Körbe: Startmodus (Unabhängig, Sync = gemeinsames Ende, Match), Beide starten, Beide an Gerät senden, Alle pausieren, Alle fortsetzen, Alle stoppen, Sync beenden
 - Ereignisse je Korb für Automationen: bereit, gestartet, pausiert, fortgesetzt, Korb gezogen, fertig, abgebrochen
 - Firmware-Anzeige für den Airfryer

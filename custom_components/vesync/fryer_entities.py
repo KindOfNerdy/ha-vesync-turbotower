@@ -333,6 +333,9 @@ class FryerButton(FryerEntity, ButtonEntity):
         """Initialize."""
         super().__init__(device, coordinator, action, basket)
         self._action = action
+        # Starting remotely heats at once; it has to be switched on on purpose.
+        if action in ("start", "start_both"):
+            self._attr_entity_registry_enabled_default = False
 
     def _config(self, basket: int) -> dict:
         basket_form = self.form.baskets[basket]
