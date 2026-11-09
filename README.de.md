@@ -4,7 +4,7 @@
 
 Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung für den **Cosori Turbo Tower Pro Smart** (CAF-DC111S-AEU / CAF-DC113S-ADE), einen Airfryer mit zwei Körben.
 
-> **Inoffiziell.** Ersetzt die eingebaute VeSync-Integration (gleiche Domain `vesync`). Bestehende Anmeldung und Geräte (z. B. Luftreiniger) bleiben erhalten. Ziel ist, alles über [pyvesync](https://github.com/webdjoe/pyvesync) und Home Assistant Core zurückzugeben – dann wird dieser Fork überflüssig.
+> **Inoffiziell.** Ersetzt die eingebaute VeSync-Integration (gleiche Domain `vesync`). Bestehende Anmeldung und Geräte (z. B. Luftreiniger) bleiben erhalten. Ziel ist, alles über [pyvesync](https://github.com/webdjoe/pyvesync) und Home Assistant Core zurückzugeben – dann wird dieser Fork überflüssig. Keine Verbindung zu VeSync oder COSORI und nicht von ihnen unterstützt; Produktnamen sind Marken ihrer jeweiligen Inhaber.
 
 ## Sicherheit
 
