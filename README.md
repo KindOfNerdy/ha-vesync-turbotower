@@ -1,37 +1,37 @@
-# VeSync mit Cosori Turbo Tower Pro
+# VeSync with Cosori Turbo Tower Pro
 
-[English](README.en.md)
+[Deutsch](README.de.md)
 
-Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung für den **Cosori Turbo Tower Pro Smart** (CAF-DC111S-AEU / CAF-DC113S-ADE), einen Airfryer mit zwei Körben.
+Fork of the official Home Assistant **VeSync** integration that adds support for the **Cosori Turbo Tower Pro Smart** (CAF-DC111S-AEU / CAF-DC113S-ADE), a dual-basket air fryer.
 
-> **Inoffiziell.** Ersetzt die eingebaute VeSync-Integration (gleiche Domain `vesync`). Bestehende Anmeldung und Geräte (z. B. Luftreiniger) bleiben erhalten. Ziel ist, alles über [pyvesync](https://github.com/webdjoe/pyvesync) und Home Assistant Core zurückzugeben – dann wird dieser Fork überflüssig.
+> **Unofficial.** Replaces the built-in VeSync integration (same domain `vesync`). Your existing login and devices (e.g. purifiers) are kept. The goal is to upstream everything to [pyvesync](https://github.com/webdjoe/pyvesync) and Home Assistant Core, which will make this fork obsolete.
 
-## Sicherheit
+## Safety
 
 > [!WARNING]
-> **Fernstart auf eigene Gefahr.** *Starten* und `vesync.start_cook` heizen sofort los, ohne dass jemand am Gerät ist. In der EU verlangt die VeSync-App, den Garvorgang mit der Start/Pause-Taste am Gerät zu starten (IEC/EN 60335-1, IEC/EN 60335-2-9). Dafür gibt es *An Gerät senden* (`send_only: true`): Die Einstellungen werden übertragen, gestartet wird mit der Taste am Gerät. Das Gerät beim Garen nie unbeaufsichtigt lassen.
+> **Remote start is at your own risk.** *Start* and `vesync.start_cook` start heating immediately, without anyone at the appliance. In the EU, the VeSync app asks you to start cooking with the Start/Pause button on the appliance (IEC/EN 60335-1, IEC/EN 60335-2-9). To do that, use *Send to appliance* (`send_only: true`): the settings are transferred, and cooking starts when you press the button. Never leave the appliance unattended while cooking.
 >
-> Die Integration wird ohne Gewährleistung und Haftung bereitgestellt, siehe [Lizenz](LICENSE).
+> This integration is provided as is, without warranty or liability, as stated in the [license](LICENSE).
 
-## Was dazukommt
+## Added
 
-Aufgebaut wie die Core-Integrationen für Backöfen (Home Connect, Miele) und auf dem Core-Modell „je Korb“ ([home-assistant/core#191014](https://github.com/home-assistant/core/pull/191014)), damit es später ohne große Änderungen in Core passt.
+Built like the Core integrations for ovens (Home Connect, Miele) and on Core's per-basket model ([home-assistant/core#191014](https://github.com/home-assistant/core/pull/191014)), so it can move into Core later without big changes.
 
-- Sensoren je Korb wie in Core: Kochstatus, eingestellte Temperatur und Zeit, aktuelle Temperatur, dazu **„fertig um“**
-- Ein am Gerät gewähltes, noch nicht gestartetes Programm bleibt sichtbar (Status „Standby“ mit Werten)
-- Schnellere Abfrage, solange ein Korb aktiv ist
-- Programm (Auswahlliste), Temperatur und Zeit je Korb; Werte kommen aus den Standards des Geräts
-- Buttons je Korb: **Starten** (legt sofort los), **An Gerät senden** (Start mit der Taste am Gerät), Pausieren, Fortsetzen, Stoppen
-- Für beide Körbe: Startmodus (Unabhängig, Sync = gemeinsames Ende, Match), Beide starten, Beide an Gerät senden, Alle pausieren, Alle fortsetzen, Alle stoppen, Sync beenden
-- Ereignisse je Korb für Automationen: bereit, gestartet, pausiert, fortgesetzt, Korb gezogen, fertig, abgebrochen
-- Firmware-Anzeige für den Airfryer
-- Aktionen für Rezepte:
-  - `vesync.start_cook` – ein Korb oder beide (Unabhängig, Sync, Match); leere Werte = Gerätestandard; `send_only: true` = nur an Gerät senden
-  - `vesync.set_preset`, `vesync.reset_preset` – Programm-Standards im Gerät ändern/zurücksetzen
+- Sensors per basket as in Core: cooking status, set temperature and time, current temperature, plus **finish time**
+- A program chosen on the fryer but not started stays visible (status "Standby" with its values)
+- Faster polling while a basket is active
+- Program (dropdown), temperature and time per basket; values come from the fryer's presets
+- Buttons per basket: **Start** (starts right away), **Send to fryer** (start with the button on the fryer), Pause, Resume, Stop
+- For both baskets: start mode (Separate, Sync = finish together, Match), Start both, Send both to fryer, Pause all, Resume all, Stop all, Leave Sync
+- Events per basket for automations: ready, started, paused, resumed, basket out, finished, stopped
+- Firmware shown for the air fryer
+- Actions for recipes:
+  - `vesync.start_cook` – one basket or both (separate, Sync, Match); empty values = fryer preset; `send_only: true` = only send to the fryer
+  - `vesync.set_preset`, `vesync.reset_preset` – change/reset the fryer's program presets
 
-Gut zu wissen: Ein Programm, das am Bedienfeld gewählt, aber nicht gestartet wurde, lässt sich nur am Gerät abbrechen – die Cloud lehnt das Stoppen ab. Was aus Home Assistant gesendet wurde, lässt sich stoppen.
+Good to know: a program chosen on the control panel but not started can only be cancelled on the fryer – the cloud refuses to stop it. Anything sent from Home Assistant can be stopped.
 
-Beispiel Rezept-Script:
+Example recipe script:
 
 ```yaml
 action: vesync.start_cook
@@ -42,30 +42,30 @@ data:
   duration: 18
 ```
 
-### Karte und Rezepte
+### Card and recipes
 
-Für ein fertiges Dashboard gibt es eine eigene Karte, die [VeSync Air Fryer Card](https://github.com/KindOfNerdy/vesync-airfryer-card): Status, Bedienung beider Körbe und Rezeptliste in einer Karte, installierbar über den Marketplace. Im selben Repository liegt ein Skript-Blueprint („Turbo Tower recipe“), der Rezepte wie das Beispiel oben ohne YAML anlegt.
+For a ready-made dashboard there is a separate card, [VeSync Air Fryer Card](https://github.com/KindOfNerdy/vesync-airfryer-card): status, controls for both baskets and a recipe list in one card, installable from the Marketplace. The same repository has a script blueprint ("Turbo Tower recipe") that creates recipes like the example above without writing YAML.
 
-### Umstieg von 0.3.x
+### Upgrading from 0.3.x
 
-Version 0.4.0 benennt „Zone“ in „Korb“ um und ersetzt Entitäten: neue Entity-IDs, der Schalter „Direktstart“ entfällt (dafür die Buttons „An Gerät senden“), Pause/Fortsetzen sind getrennte Buttons, die Aktionen `stop`, `pause`, `resume` und `quit_sync` entfallen (Buttons nutzen). In `start_cook` heißt `zone` jetzt `basket`, `direct_start` wird zu `send_only`. Alte Entitäten unter *Einstellungen → Geräte* entfernen und Dashboards/Automationen anpassen.
+Version 0.4.0 renames "zone" to "basket" and replaces entities: new entity IDs, the "Direct start" switch is gone (use the "Send to fryer" buttons), pause and resume are separate buttons, the actions `stop`, `pause`, `resume` and `quit_sync` are gone (use the buttons). In `start_cook`, `zone` is now `basket` and `direct_start` became `send_only`. Remove the old entities under *Settings → Devices* and update dashboards/automations.
 
-## Korrekturen gegenüber pyvesync 3.5.1
+## Fixes on top of pyvesync 3.5.1
 
-Basiert auf pyvesync 3.5.1 (enthält inzwischen Pause/Fortsetzen, Sync/Match, `cookEnd` und die Absturz-Korrektur aus unseren Beiträgen). Nur noch angewendet, solange pyvesync sie braucht:
+Based on pyvesync 3.5.1 (which now includes pause/resume, Sync/Match, `cookEnd` and the crash fix from our contributions). Only applied while pyvesync still needs them:
 
-- Backen ab 80 °C wie in der Anleitung ([#598](https://github.com/webdjoe/pyvesync/issues/598))
-- Firmware des Airfryers wird mit abgefragt ([#601](https://github.com/webdjoe/pyvesync/pull/601))
-- Am Bedienfeld gewähltes, nicht gestartetes Programm behält seine Werte (statt wie „Aus“ auszusehen)
+- Bake from 80 °C as in the manual ([#598](https://github.com/webdjoe/pyvesync/issues/598))
+- Air fryer firmware is checked too ([#601](https://github.com/webdjoe/pyvesync/pull/601))
+- A program chosen on the control panel but not started keeps its values (instead of looking like "off")
 
 ## Installation
 
-1. Im Marketplace (HACS) dieses Repository als benutzerdefiniertes Repository vom Typ *Integration* hinzufügen.
-2. „VeSync (Turbo Tower)“ installieren und bestätigen, dass die eingebaute Integration ersetzt wird.
-3. Home Assistant neu starten.
+1. In the Marketplace (HACS), add this repository as a custom repository of type *Integration*.
+2. Install "VeSync (Turbo Tower)" and confirm replacing the built-in integration.
+3. Restart Home Assistant.
 
-Zurück zur offiziellen Integration: im Marketplace entfernen und neu starten.
+To go back to the official integration, remove it in the Marketplace and restart.
 
-## Lizenz
+## License
 
-Apache-2.0, wie Home Assistant Core. Basis: `homeassistant/components/vesync` aus home-assistant/core (siehe `custom_components/vesync/UPSTREAM.md`).
+Apache-2.0, like Home Assistant Core. Based on `homeassistant/components/vesync` from home-assistant/core (see `custom_components/vesync/UPSTREAM.md`).
