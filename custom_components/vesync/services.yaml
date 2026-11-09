@@ -40,7 +40,7 @@ start_cook:
           unit_of_measurement: min
           mode: box
     send_only:
-      default: false
+      default: true
       selector:
         boolean:
     basket_2:

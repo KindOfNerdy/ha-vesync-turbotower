@@ -43,7 +43,7 @@ START_SCHEMA = vol.Schema(
         vol.Required("program"): PROGRAM,
         vol.Optional("temperature"): TEMP,
         vol.Optional("duration"): MINUTES,
-        vol.Optional("send_only", default=False): cv.boolean,
+        vol.Optional("send_only", default=True): cv.boolean,
         vol.Optional("mode", default="separate"): vol.In(list(SYNC_TYPES)),
         vol.Optional("program_2"): PROGRAM,
         vol.Optional("temperature_2"): TEMP,

@@ -311,7 +311,7 @@
         },
         "start_cook": {
             "name": "Garen starten",
-            "description": "Startet einen oder beide Körbe eines Airfryers mit zwei Körben mit den angegebenen Werten. Temperatur und Zeit kommen, wenn leer, aus dem Gerätestandard des Programms. Achtung: Gerät wird direkt heiß (außer mit „Nur an Gerät senden“).",
+            "description": "Startet einen oder beide Körbe eines Airfryers mit zwei Körben mit den angegebenen Werten. Temperatur und Zeit kommen, wenn leer, aus dem Gerätestandard des Programms.",
             "fields": {
                 "device_id": {
                     "name": "Airfryer",
@@ -335,7 +335,7 @@
                 },
                 "send_only": {
                     "name": "Nur an Gerät senden",
-                    "description": "Programm nur senden und am Gerät mit der Start-Taste starten."
+                    "description": "An (Standard): Programm nur senden, gestartet wird mit der Start-Taste am Gerät. Aus: heizt sofort los, auf eigene Gefahr."
                 },
                 "mode": {
                     "name": "Modus für beide Körbe",

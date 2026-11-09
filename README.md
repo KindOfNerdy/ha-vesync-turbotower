@@ -9,7 +9,7 @@ Fork of the official Home Assistant **VeSync** integration that adds support for
 ## Safety
 
 > [!WARNING]
-> **Remote start is at your own risk.** *Start* and `vesync.start_cook` start heating immediately, without anyone at the appliance. In the EU, the VeSync app asks you to start cooking with the Start/Pause button on the appliance (IEC/EN 60335-1, IEC/EN 60335-2-9). To do that, use *Send to appliance* (`send_only: true`): the settings are transferred, and cooking starts when you press the button. The *Start* and *Start both* buttons are therefore disabled after installation; enable them under the device's entities if you want to start remotely. Never leave the appliance unattended while cooking.
+> **Remote start is at your own risk.** *Start* and `vesync.start_cook` with `send_only: false` start heating immediately, without anyone at the appliance. In the EU, the VeSync app asks you to start cooking with the Start/Pause button on the appliance (IEC/EN 60335-1, IEC/EN 60335-2-9). *Send to appliance* and `vesync.start_cook` by default do that: the settings are transferred, and cooking starts when you press the button. The *Start* and *Start both* buttons are therefore disabled for new installations; enable them under the device's entities if you want to start remotely. Never leave the appliance unattended while cooking.
 >
 > This integration is provided as is, without warranty or liability, as stated in the [license](LICENSE).
 
@@ -26,7 +26,7 @@ Built like the Core integrations for ovens (Home Connect, Miele) and on Core's p
 - Events per basket for automations: ready, started, paused, resumed, basket out, finished, stopped
 - Firmware shown for the air fryer
 - Actions for recipes:
-  - `vesync.start_cook` – one basket or both (separate, Sync, Match); empty values = fryer preset; `send_only: true` = only send to the fryer
+  - `vesync.start_cook` – one basket or both (separate, Sync, Match); empty values = fryer preset; only sends to the fryer by default; `send_only: false` starts right away
   - `vesync.set_preset`, `vesync.reset_preset` – change/reset the fryer's program presets
 
 Good to know: a program chosen on the control panel but not started can only be cancelled on the fryer – the cloud refuses to stop it. Anything sent from Home Assistant can be stopped.

@@ -314,7 +314,7 @@
     },
     "start_cook": {
       "name": "Start cooking",
-      "description": "Starts one or both baskets of a dual-basket air fryer with the given values. Temperature and time default to the program's preset stored in the fryer. Caution: the appliance heats up right away (unless send only is set).",
+      "description": "Starts one or both baskets of a dual-basket air fryer with the given values. Temperature and time default to the program's preset stored in the fryer.",
       "fields": {
         "device_id": {
           "name": "Air fryer",
@@ -338,7 +338,7 @@
         },
         "send_only": {
           "name": "Only send to fryer",
-          "description": "Send the program without starting it; start it with the button on the fryer."
+          "description": "On (default): send the program; start it with the button on the fryer. Off: start heating right away, at your own risk."
         },
         "mode": {
           "name": "Mode for both baskets",

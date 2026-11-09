@@ -9,7 +9,7 @@ Fork der offiziellen Home-Assistant-Integration **VeSync** mit Unterstützung f�
 ## Sicherheit
 
 > [!WARNING]
-> **Fernstart auf eigene Gefahr.** *Starten* und `vesync.start_cook` heizen sofort los, ohne dass jemand am Gerät ist. In der EU verlangt die VeSync-App, den Garvorgang mit der Start/Pause-Taste am Gerät zu starten (IEC/EN 60335-1, IEC/EN 60335-2-9). Dafür gibt es *An Gerät senden* (`send_only: true`): Die Einstellungen werden übertragen, gestartet wird mit der Taste am Gerät. Die Buttons *Starten* und *Beide starten* sind deshalb nach der Installation deaktiviert; wer aus der Ferne starten will, aktiviert sie unter den Entitäten des Geräts. Das Gerät beim Garen nie unbeaufsichtigt lassen.
+> **Fernstart auf eigene Gefahr.** *Starten* und `vesync.start_cook` mit `send_only: false` heizen sofort los, ohne dass jemand am Gerät ist. In der EU verlangt die VeSync-App, den Garvorgang mit der Start/Pause-Taste am Gerät zu starten (IEC/EN 60335-1, IEC/EN 60335-2-9). So arbeiten *An Gerät senden* und standardmäßig `vesync.start_cook`: Die Einstellungen werden übertragen, gestartet wird mit der Taste am Gerät. Die Buttons *Starten* und *Beide starten* sind deshalb bei Neuinstallationen deaktiviert; wer aus der Ferne starten will, aktiviert sie unter den Entitäten des Geräts. Das Gerät beim Garen nie unbeaufsichtigt lassen.
 >
 > Die Integration wird ohne Gewährleistung und Haftung bereitgestellt, siehe [Lizenz](LICENSE).
 
@@ -26,7 +26,7 @@ Aufgebaut wie die Core-Integrationen für Backöfen (Home Connect, Miele) und au
 - Ereignisse je Korb für Automationen: bereit, gestartet, pausiert, fortgesetzt, Korb gezogen, fertig, abgebrochen
 - Firmware-Anzeige für den Airfryer
 - Aktionen für Rezepte:
-  - `vesync.start_cook` – ein Korb oder beide (Unabhängig, Sync, Match); leere Werte = Gerätestandard; `send_only: true` = nur an Gerät senden
+  - `vesync.start_cook` – ein Korb oder beide (Unabhängig, Sync, Match); leere Werte = Gerätestandard; sendet standardmäßig nur an das Gerät; `send_only: false` startet sofort
   - `vesync.set_preset`, `vesync.reset_preset` – Programm-Standards im Gerät ändern/zurücksetzen
 
 Gut zu wissen: Ein Programm, das am Bedienfeld gewählt, aber nicht gestartet wurde, lässt sich nur am Gerät abbrechen – die Cloud lehnt das Stoppen ab. Was aus Home Assistant gesendet wurde, lässt sich stoppen.
