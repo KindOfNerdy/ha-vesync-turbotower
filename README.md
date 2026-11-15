@@ -66,6 +66,10 @@ Based on pyvesync 3.5.1 (which now includes pause/resume, Sync/Match, `cookEnd` 
 
 To go back to the official integration, remove it in the Marketplace and restart.
 
+## Support
+
+If this saves you time, you can [buy me a coffee on Ko-fi](https://ko-fi.com/kindofnerdy) ☕
+
 ## License
 
 Apache-2.0, like Home Assistant Core. Based on `homeassistant/components/vesync` from home-assistant/core (see `custom_components/vesync/UPSTREAM.md`).
