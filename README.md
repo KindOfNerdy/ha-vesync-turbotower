@@ -60,9 +60,24 @@ Based on pyvesync 3.5.1 (which now includes pause/resume, Sync/Match, `cookEnd` 
 
 ## Installation
 
-1. In the Marketplace (HACS), add this repository as a custom repository of type *Integration*.
-2. Install "VeSync (Turbo Tower)" and confirm replacing the built-in integration.
+**Home Assistant 2026.11 and later (Marketplace):**
+
+1. Add the repository (*Add from link*, `https://github.com/KindOfNerdy/ha-vesync-turbotower`, type *Integration*):
+
+   [![Open your Home Assistant instance and show your custom repositories in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repositories.svg)](https://my.home-assistant.io/redirect/marketplace_repositories/)
+
+2. Install "VeSync (Turbo Tower)" and confirm replacing the built-in integration:
+
+   [![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=KindOfNerdy&repository=ha-vesync-turbotower&category=integration)
+
 3. Restart Home Assistant.
+4. Set up the integration (skip this if VeSync is already set up):
+
+   [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=vesync)
+
+**Earlier versions:** in HACS, add this repository as a custom repository of type *Integration*, then install it:
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=KindOfNerdy&repository=ha-vesync-turbotower&category=integration)
 
 To go back to the official integration, remove it in the Marketplace and restart.
 
